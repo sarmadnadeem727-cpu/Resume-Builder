@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATS Resume Builder</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --navy: #1a2e4a;
+      --blue: #2563a8;
+      --gold: #b45309;
+      --light: #f0f4f9;
+      --border: #d1dae6;
+      --text: #1e293b;
+      --muted: #64748b;
+      --white: #fff;
+      --accent: #e8eef6;
+      --green: #16a34a;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--light);
+      color: var(--text);
+      min-height: 100vh
+    }
+
+    .app {
+      display: flex;
+      height: 100vh;
+      overflow: hidden
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 420px;
+      min-width: 380px;
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column
+    }
+
+    .sidebar-header {
+      padding: 18px 22px 14px;
+      background: var(--navy);
+      flex-shrink: 0
+    }
+
+    .sidebar-header h1 {
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -.3px
+    }
+
+    .sidebar-header p {
+      color: rgba(255, 255, 255, .55);
+      font-size: 11px;
+      margin-top: 3px
+    }
+
+    .ats-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(22, 163, 74, .2);
+      color: #4ade80;
+      border: 1px solid rgba(74, 222, 128, .3);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-top: 8px;
+      letter-spacing: .4px
+    }
+
+    .dev-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(37, 99, 235, .15);
+      color: #60a5fa;
+      border: 1px solid rgba(96, 165, 250, .3);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 9.5px;
+      font-weight: 500;
+      margin-top: 5px;
+      margin-left: 8px;
+    }
+
+    .sidebar-tabs {
+      display: flex;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0
+    }
+
+    .sidebar-tabs::-webkit-scrollbar {
+      height: 0
+    }
+
+    .sidebar-tabs button {
+      flex: 0 0 auto;
+      padding: 9px 12px;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      border-bottom: 2px solid transparent;
+      transition: all .18s
+    }
+
+    .sidebar-tabs button.active {
+      color: var(--blue);
+      border-bottom-color: var(--blue)
+    }
+
+    .sidebar-tabs button:hover:not(.active) {
+      color: var(--text)
+    }
+
+    .tab-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 20px
+    }
+
+    .form-section {
+      margin-bottom: 20px
+    }
+
+    .form-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--navy);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      border-bottom: 2px solid var(--accent)
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-bottom: 9px
+    }
+
+    .form-group label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .4px
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 7px 9px;
+      font-size: 12.5px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--white);
+      transition: border .15s, box-shadow .15s;
+      resize: vertical
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 168, .1)
+    }
+
+    .form-group textarea {
+      min-height: 65px
+    }
+
+    .item-card {
+      background: var(--accent);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 13px;
+      margin-bottom: 11px;
+      animation: fadeIn .18s ease
+    }
+
+    .item-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 9px
+    }
+
+    .item-card-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--navy)
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #dc2626;
+      font-size: 15px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      transition: background .15s
+    }
+
+    .btn-delete:hover {
+      background: #fef2f2
+    }
+
+    .btn-add {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 13px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+      margin-top: 4px
+    }
+
+    .form-nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-nav {
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-nav:hover {
+      background: #0f1c2d;
+    }
+
+    .btn-nav.btn-back {
+      background: #e2e8f0;
+      color: var(--navy);
+    }
+
+    .btn-nav.btn-back:hover {
+      background: #cbd5e1;
+    }
+
+    .btn-add:hover {
+      background: #1d4ed8
+    }
+
+    .bullet-list {
+      list-style: none;
+      padding: 0
+    }
+
+    .bullet-item {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 5px
+    }
+
+    .bullet-item input {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 5px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      color: var(--text)
+    }
+
+    .bullet-item input:focus {
+      outline: none;
+      border-color: var(--blue)
+    }
+
+    .btn-rm-bullet {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 0 7px;
+      font-size: 14px;
+      transition: all .15s
+    }
+
+    .btn-rm-bullet:hover {
+      border-color: #dc2626;
+      color: #dc2626
+    }
+
+    .btn-add-bullet {
+      background: none;
+      border: 1px dashed var(--border);
+      border-radius: 4px;
+      padding: 5px;
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      width: 100%;
+      margin-top: 2px;
+      transition: all .15s
+    }
+
+    .btn-add-bullet:hover {
+      border-color: var(--blue);
+      color: var(--blue)
+    }
+
+    .skills-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 8px
+    }
+
+    .skill-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--navy);
+      color: #fff;
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 11.5px
+    }
+
+    .skill-tag button {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, .65);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0
+    }
+
+    .skill-tag button:hover {
+      color: #fff
+    }
+
+    .skill-input-row {
+      display: flex;
+      gap: 7px
+    }
+
+    .skill-input-row input {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 6px 9px;
+      font-size: 12px;
+      font-family: inherit
+    }
+
+    .skill-input-row input:focus {
+      outline: none;
+      border-color: var(--blue)
+    }
+
+    .skill-input-row button {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 6px 13px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer
+    }
+
+    /* ATS TIPS */
+    .ats-tip {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 6px;
+      padding: 9px 11px;
+      font-size: 11px;
+      color: #15803d;
+      margin-bottom: 12px;
+      line-height: 1.5
+    }
+
+    .ats-tip strong {
+      color: #166534
+    }
+
+    /* DOWNLOAD BAR */
+    .download-bar {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--white);
+      flex-shrink: 0;
+      display: flex;
+      gap: 8px
+    }
+
+    .btn-dl {
+      flex: 1;
+      border: none;
+      border-radius: 7px;
+      padding: 11px 8px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      letter-spacing: .2px
+    }
+
+    .btn-dl:disabled {
+      opacity: .55;
+      cursor: wait
+    }
+
+    .btn-dl-pdf {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: #fff
+    }
+
+    .btn-dl-pdf:hover:not(:disabled) {
+      opacity: .9
+    }
+
+    .btn-dl-word {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff
+    }
+
+    .btn-dl-word:hover:not(:disabled) {
+      opacity: .9
+    }
+
+    /* ANIMATIONS & OVERLAYS */
+    @keyframes popAndPulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(0.96);
+      }
+
+      100% {
+        transform: scale(0.98);
+        box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+      }
+    }
+
+    .btn-dl.loading {
+      animation: popAndPulse 0.4s forwards;
+      opacity: 0.8 !important;
+      cursor: wait !important;
+    }
+
+    .btn-spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .download-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .download-overlay .large-spinner {
+      width: 45px;
+      height: 45px;
+      border: 3px solid rgba(26, 46, 74, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--navy);
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 20px;
+    }
+
+    .download-overlay h2 {
+      font-size: 18px;
+      color: var(--navy);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .preview-area.processing #resume-preview {
+      transform: scale(0.98);
+      filter: blur(2px);
+      opacity: 0.7;
+      transition: all 0.4s ease;
+    }
+
+    #resume-preview {
+      transition: all 0.4s ease;
+    }
+
+    /* PREVIEW AREA */
+    .preview-area {
+      flex: 1;
+      overflow-y: auto;
+      background: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 22px;
+      gap: 14px
+    }
+
+    .preview-label {
+      color: #475569;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .preview-label strong {
+      color: var(--navy)
+    }
+
+    .ats-score {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--green)
+    }
+
+    /* ===== ATS-FRIENDLY RESUME ===== */
+    /* Intentionally clean, single-font, no icons for ATS scanning */
+    #resume-preview {
+      width: 210mm;
+      min-height: 297mm;
+      background: #fff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, .18);
+      font-family: 'Inter', system-ui, -apple-system, Arial, sans-serif;
+      font-size: 9.25pt;
+      color: #1a1a1a;
+      padding: 8mm 12mm 8mm 12mm;
+      line-height: 1.25;
+    }
+
+    .r-name {
+      font-size: 16.75pt;
+      font-weight: 700;
+      color: #1a2e4a;
+      letter-spacing: -.5px;
+      line-height: 1.1;
+      word-break: break-word;
+      text-align: center;
+    }
+
+    .r-title {
+      font-size: 10.75pt;
+      font-weight: 600;
+      color: #2563a8;
+      margin-top: 1px;
+      text-align: center;
+    }
+
+    .r-contact {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      column-gap: 10px;
+      row-gap: 2px;
+      margin-top: 3px;
+      font-size: 8.25pt;
+      color: #333;
+      border-bottom: 1px solid #1a2e4a;
+      padding-bottom: 4px
+    }
+
+    .r-contact span,
+    .r-contact a {
+      white-space: nowrap;
+      color: #333;
+      text-decoration: none;
+    }
+
+    .r-contact a:hover {
+      text-decoration: underline;
+      color: #2563a8;
+    }
+
+    /* SECTION */
+    .r-section {
+      margin-top: 6px
+    }
+
+    .r-section-title {
+      font-size: 9.75pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #1a2e4a;
+      border-bottom: 1px solid #1a2e4a;
+      padding-bottom: 1px;
+      margin-bottom: 4px
+    }
+
+    /* SUMMARY */
+    .r-summary {
+      font-size: 8pt;
+      line-height: 1.5;
+      /* Increased for readability */
+      color: #222;
+      text-align: justify
+    }
+
+    /* JOB */
+    .r-job {
+      margin-bottom: 5px
+    }
+
+    .r-job-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start
+    }
+
+    .r-job-left {
+      flex: 1;
+      min-width: 0;
+      padding-right: 15px
+    }
+
+    .r-job-title {
+      font-size: 9.75pt;
+      font-weight: 700;
+      color: #1a1a1a;
+      word-wrap: break-word
+    }
+
+    .r-job-company {
+      font-size: 8.75pt;
+      font-weight: 600;
+      color: #2563a8;
+      word-wrap: break-word
+    }
+
+    .r-job-right {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .r-job-dates {
+      font-size: 8.25pt;
+      font-weight: 700;
+      color: #1a1a1a;
+      white-space: nowrap
+    }
+
+    .r-job-loc {
+      font-size: 7.75pt;
+      font-weight: 600;
+      color: #2563a8;
+      margin-top: 1px;
+      white-space: nowrap
+    }
+
+    .r-bullets {
+      margin-top: 2px;
+      padding-left: 12px
+    }
+
+    .r-bullets li {
+      font-size: 8.75pt;
+      line-height: 1.45;
+      /* Increased for readability */
+      margin-bottom: 1.5px;
+      color: #222
+    }
+
+    /* SKILLS */
+    .r-skills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 3px
+    }
+
+    .r-skill {
+      background: #1a2e4a;
+      color: #fff;
+      border-radius: 3px;
+      padding: 1.5px 5px;
+      font-size: 8.25pt;
+      font-weight: 600
+    }
+
+    /* EDUCATION */
+    .r-edu {
+      margin-bottom: 5px
+    }
+
+    .r-edu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start
+    }
+
+    .r-edu-left {
+      flex: 1;
+      min-width: 0;
+      padding-right: 15px
+    }
+
+    .r-edu-degree {
+      font-size: 9.75pt;
+      font-weight: 700;
+      color: #1a1a1a;
+      word-wrap: break-word
+    }
+
+    .r-edu-school {
+      font-size: 8.75pt;
+      font-weight: 600;
+      color: #2563a8;
+      word-wrap: break-word
+    }
+
+    .r-edu-right {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .r-edu-dates {
+      font-size: 8.25pt;
+      font-weight: 700;
+      color: #1a1a1a;
+      white-space: nowrap
+    }
+
+    .r-edu-gpa {
+      font-size: 9.25pt;
+      font-weight: 700;
+      color: #1a2e4a;
+      background: #e8eef6;
+      border-radius: 2px;
+      padding: 1px 4px;
+      display: inline-block;
+      margin-top: 1px
+    }
+
+    .r-edu-note {
+      font-size: 7.75pt;
+      color: #444;
+      margin-top: 1px;
+      font-style: italic
+    }
+
+    /* CERTIFICATIONS */
+    .r-certs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 12px
+    }
+
+    .r-cert-item {
+      font-size: 8.75pt;
+      color: #222
+    }
+
+    .r-cert-name {
+      font-weight: 600;
+      color: #1a1a1a
+    }
+
+    .r-cert-org {
+      color: #2563a8
+    }
+
+    /* PROJECTS */
+    .r-project {
+      margin-bottom: 4px
+    }
+
+    .r-project-name {
+      font-size: 9.25pt;
+      font-weight: 700;
+      color: #1a2e4a
+    }
+
+    .r-project-desc {
+      font-size: 8.75pt;
+      color: #333;
+      margin-top: 1px;
+      line-height: 1.3
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #b0bec5;
+      border-radius: 3px
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useCallback } = React;
+
+    /* ===== INITIAL DATA ===== */
+    const INIT = {
+      personal: { name: "", title: "", phone: "", email: "", linkedin: "", location: "" },
+      summary: "",
+      experience: [],
+      education: [],
+      skills: [],
+      certifications: [],
+      projects: []
+    };
+
+    function uid() { return Date.now() + Math.random(); }
+
+    /* ===== FORM COMPONENTS ===== */
+    function BulletEditor({ bullets, onChange }) {
+      return (
+        <ul className="bullet-list">
+          {bullets.map((b, i) => (
+            <li className="bullet-item" key={i}>
+              <input value={b} onChange={e => { const n = [...bullets]; n[i] = e.target.value; onChange(n); }} placeholder="Responsibility or achievement..." />
+              <button className="btn-rm-bullet" onClick={() => onChange(bullets.filter((_, j) => j !== i))}>×</button>
+            </li>
+          ))}
+          <button className="btn-add-bullet" onClick={() => onChange([...bullets, ''])}>+ Add bullet point</button>
+        </ul>
+      );
+    }
+
+    function PersonalForm({ data, onChange }) {
+      const f = (k, v) => onChange({ ...data, [k]: v });
+      return (
+        <div>
+          <div className="ats-tip"><strong>✓ ATS Tip:</strong> Use a standard professional title. Avoid graphics or special symbols in your name/contact section — ATS systems parse plain text.</div>
+          <div className="form-group"><label>Full Name</label><input value={data.name} onChange={e => f('name', e.target.value)} placeholder="Your Full Name" /></div>
+          <div className="form-group"><label>Professional Title</label><input value={data.title} onChange={e => f('title', e.target.value)} placeholder="e.g. Supply Chain Professional" /></div>
+          <div className="form-row">
+            <div className="form-group"><label>Phone</label><input value={data.phone} onChange={e => f('phone', e.target.value)} placeholder="+1 234 567 890" /></div>
+            <div className="form-group"><label>Location</label><input value={data.location} onChange={e => f('location', e.target.value)} placeholder="City, Country" /></div>
+          </div>
+          <div className="form-group"><label>Email</label><input value={data.email} onChange={e => f('email', e.target.value)} placeholder="your@email.com" /></div>
+          <div className="form-group"><label>LinkedIn</label><input value={data.linkedin} onChange={e => f('linkedin', e.target.value)} placeholder="linkedin.com/in/yourname" /></div>
+        </div>
+      );
+    }
+
+    function SummaryForm({ data, onChange }) {
+      return (
+        <div>
+          <div className="ats-tip"><strong>✓ ATS Tip:</strong> Include relevant keywords from the job description naturally in your summary. Keep it 3–5 sentences. Avoid tables or columns here.</div>
+          <div className="form-group"><label>Professional Summary</label><textarea value={data} onChange={e => onChange(e.target.value)} rows={7} placeholder="Write a compelling, keyword-rich summary..." /></div>
+        </div>
+      );
+    }
+
+    function ExperienceForm({ data, onChange }) {
+      const upd = (id, k, v) => onChange(data.map(e => e.id === id ? { ...e, [k]: v } : e));
+      return (
+        <div>
+          <div className="ats-tip"><strong>✓ ATS Tip:</strong> Start bullet points with strong action verbs. Quantify achievements (%, $, numbers). Use standard job title names.</div>
+          {data.map((exp, i) => (
+            <div className="item-card" key={exp.id}>
+              <div className="item-card-header">
+                <span className="item-card-title">{exp.title || `Experience ${i + 1}`}</span>
+                <button className="btn-delete" onClick={() => onChange(data.filter(e => e.id !== exp.id))}>🗑</button>
+              </div>
+              <div className="form-group"><label>Job Title</label><input value={exp.title} onChange={e => upd(exp.id, 'title', e.target.value)} placeholder="e.g. Supply Chain Analyst" /></div>
+              <div className="form-group"><label>Company</label><input value={exp.company} onChange={e => upd(exp.id, 'company', e.target.value)} placeholder="Company Name" /></div>
+              <div className="form-row">
+                <div className="form-group"><label>Start</label><input value={exp.start} onChange={e => upd(exp.id, 'start', e.target.value)} placeholder="MM/YYYY" /></div>
+                <div className="form-group"><label>End</label><input value={exp.end} onChange={e => upd(exp.id, 'end', e.target.value)} placeholder="MM/YYYY or Present" /></div>
+              </div>
+              <div className="form-group"><label>Location</label><input value={exp.location} onChange={e => upd(exp.id, 'location', e.target.value)} placeholder="City, Country" /></div>
+              <div className="form-group"><label>Bullet Points</label><BulletEditor bullets={exp.bullets} onChange={b => upd(exp.id, 'bullets', b)} /></div>
+            </div>
+          ))}
+          <button className="btn-add" onClick={() => onChange([...data, { id: uid(), title: '', company: '', start: '', end: '', location: '', bullets: [''] }])}>+ Add Experience</button>
+        </div>
+      );
+    }
+
+    function EducationForm({ data, onChange }) {
+      const upd = (id, k, v) => onChange(data.map(e => e.id === id ? { ...e, [k]: v } : e));
+      return (
+        <div>
+          <div className="ats-tip"><strong>✓ ATS Tip:</strong> Spell out full degree names (e.g. "Bachelor of Science") for better ATS parsing alongside abbreviations.</div>
+          {data.map((edu, i) => (
+            <div className="item-card" key={edu.id}>
+              <div className="item-card-header">
+                <span className="item-card-title">{edu.degree || `Education ${i + 1}`}</span>
+                <button className="btn-delete" onClick={() => onChange(data.filter(e => e.id !== edu.id))}>🗑</button>
+              </div>
+              <div className="form-group"><label>Degree / Program</label><input value={edu.degree} onChange={e => upd(edu.id, 'degree', e.target.value)} placeholder="e.g. BS Operations Management" /></div>
+              <div className="form-group"><label>School</label><input value={edu.school} onChange={e => upd(edu.id, 'school', e.target.value)} placeholder="Institution Name" /></div>
+              <div className="form-row">
+                <div className="form-group"><label>Start</label><input value={edu.start} onChange={e => upd(edu.id, 'start', e.target.value)} placeholder="MM/YYYY" /></div>
+                <div className="form-group"><label>End</label><input value={edu.end} onChange={e => upd(edu.id, 'end', e.target.value)} placeholder="MM/YYYY" /></div>
+              </div>
+              <div className="form-row">
+                <div className="form-group"><label>Location</label><input value={edu.location} onChange={e => upd(edu.id, 'location', e.target.value)} placeholder="City, Country" /></div>
+                <div className="form-group"><label>GPA / Score</label><input value={edu.gpa} onChange={e => upd(edu.id, 'gpa', e.target.value)} placeholder="3.96 / 4.0" /></div>
+              </div>
+              <div className="form-group"><label>Extra Note (optional)</label><input value={edu.bullet} onChange={e => upd(edu.id, 'bullet', e.target.value)} placeholder="Relevant note or honor..." /></div>
+            </div>
+          ))}
+          <button className="btn-add" onClick={() => onChange([...data, { id: uid(), degree: '', school: '', start: '', end: '', location: '', gpa: '', bullet: '' }])}>+ Add Education</button>
+        </div>
+      );
+    }
+
+    function SkillsForm({ data, onChange }) {
+      const [inp, setInp] = useState('');
+      const add = () => { if (inp.trim()) { onChange([...data, inp.trim()]); setInp(''); } };
+      return (
+        <div>
+          <div className="ats-tip"><strong>✓ ATS Tip:</strong> Mirror exact skill keywords from job descriptions. Include both acronyms and full forms (e.g. "Power BI" and "Business Intelligence").</div>
+          <div className="skills-wrap">{data.map((s, i) => <div className="skill-tag" key={i}>{s}<button onClick={() => onChange(data.filter((_, j) => j !== i))}>×</button></div>)}</div>
+          <div className="skill-input-row">
+            <input value={inp} onChange={e => setInp(e.target.value)} onKeyDown={e => e.key === 'Enter' && add()} placeholder="Type a skill, press Enter" />
+            <button onClick={add}>Add</button>
+          </div>
+        </div>
+      );
+    }
+
+    function CertsForm({ data, onChange }) {
+      const upd = (id, k, v) => onChange(data.map(c => c.id === id ? { ...c, [k]: v } : c));
+      return (
+        <div>
+          {data.map((c, i) => (
+            <div className="item-card" key={c.id}>
+              <div className="item-card-header">
+                <span className="item-card-title">{c.name || `Cert ${i + 1}`}</span>
+                <button className="btn-delete" onClick={() => onChange(data.filter(x => x.id !== c.id))}>🗑</button>
+              </div>
+              <div className="form-group"><label>Certification Name</label><input value={c.name} onChange={e => upd(c.id, 'name', e.target.value)} placeholder="Certificate title" /></div>
+              <div className="form-group"><label>Issuing Organization</label><input value={c.org} onChange={e => upd(c.id, 'org', e.target.value)} placeholder="e.g. Coursera, LUMS" /></div>
+            </div>
+          ))}
+          <button className="btn-add" onClick={() => onChange([...data, { id: uid(), name: '', org: '' }])}>+ Add Certification</button>
+        </div>
+      );
+    }
+
+    function ProjectsForm({ data, onChange }) {
+      const upd = (id, k, v) => onChange(data.map(p => p.id === id ? { ...p, [k]: v } : p));
+      return (
+        <div>
+          <div className="ats-tip"><strong>✓ ATS Tip:</strong> Include tools and technologies used in project descriptions for keyword matching. Use absolute URLs for links (e.g., https://...).</div>
+          {data.map((p, i) => (
+            <div className="item-card" key={p.id}>
+              <div className="item-card-header">
+                <span className="item-card-title">{p.name || `Project ${i + 1}`}</span>
+                <button className="btn-delete" onClick={() => onChange(data.filter(x => x.id !== p.id))}>🗑</button>
+              </div>
+              <div className="form-row">
+                <div className="form-group"><label>Project Name</label><input value={p.name} onChange={e => upd(p.id, 'name', e.target.value)} placeholder="Project title" /></div>
+                <div className="form-group"><label>Project Link</label><input value={p.link} onChange={e => upd(p.id, 'link', e.target.value)} placeholder="e.g. github.com/..." /></div>
+              </div>
+              <div className="form-group"><label>Description</label><textarea value={p.desc} onChange={e => upd(p.id, 'desc', e.target.value)} rows={3} placeholder="What did you build or accomplish?" /></div>
+            </div>
+          ))}
+          <button className="btn-add" onClick={() => onChange([...data, { id: uid(), name: '', link: '', desc: '' }])}>+ Add Project</button>
+        </div>
+      );
+    }
+
+    /* ===== RESUME PREVIEW ===== */
+    function ResumePreview({ d }) {
+      const { personal: p, summary, experience, education, skills, certifications, projects } = d;
+      return (
+        <div id="resume-preview">
+          {/* HEADER */}
+          <div className="r-name">{p.name || 'Your Name'}</div>
+          {p.title && <div className="r-title">{p.title}</div>}
+          <div className="r-contact">
+            {p.phone && <a href={`tel:${p.phone.replace(/[^0-9+]/g, '')}`}>{p.phone}</a>}
+            {p.email && <a href={`mailto:${p.email}`}>{p.email}</a>}
+            {p.linkedin && <a href={p.linkedin.startsWith('http') ? p.linkedin : `https://${p.linkedin}`} target="_blank" rel="noopener noreferrer">{p.linkedin.replace(/^https?:\/\//, '')}</a>}
+            {p.location && <span>{p.location}</span>}
+          </div>
+
+          {/* SUMMARY */}
+          {summary && <div className="r-section"><div className="r-section-title">Professional Summary</div><div className="r-summary">{summary}</div></div>}
+
+          {/* EXPERIENCE */}
+          {experience.length > 0 && <div className="r-section"><div className="r-section-title">Work Experience</div>
+            {experience.map(exp => (
+              <div className="r-job" key={exp.id}>
+                <div className="r-job-header">
+                  <div className="r-job-left"><div className="r-job-title">{exp.title}</div><div className="r-job-company">{exp.company}</div></div>
+                  <div className="r-job-right">
+                    {(exp.start || exp.end) && <div className="r-job-dates">{exp.start}{exp.end ? ' – ' + exp.end : ''}</div>}
+                    {exp.location && <div className="r-job-loc">{exp.location}</div>}
+                  </div>
+                </div>
+                {exp.bullets.filter(b => b.trim()).length > 0 && <ul className="r-bullets">{exp.bullets.filter(b => b.trim()).map((b, i) => <li key={i}>{b}</li>)}</ul>}
+              </div>
+            ))}
+          </div>}
+
+          {/* EDUCATION */}
+          {education.length > 0 && <div className="r-section"><div className="r-section-title">Education</div>
+            {education.map(edu => (
+              <div className="r-edu" key={edu.id}>
+                <div className="r-edu-header">
+                  <div className="r-edu-left"><div className="r-edu-degree">{edu.degree}</div><div className="r-edu-school">{edu.school}</div></div>
+                  <div className="r-edu-right">
+                    {(edu.start || edu.end) && <div className="r-edu-dates">{edu.start}{edu.end ? ' – ' + edu.end : ''}</div>}
+                    {edu.gpa && <div className="r-edu-gpa">{edu.gpa}</div>}
+                  </div>
+                </div>
+                {edu.bullet && <div className="r-edu-note">{edu.bullet}</div>}
+              </div>
+            ))}
+          </div>}
+
+          {/* SKILLS */}
+          {skills.length > 0 && <div className="r-section"><div className="r-section-title">Skills</div>
+            <div className="r-skills-row">{skills.map((s, i) => <span className="r-skill" key={i}>{s}</span>)}</div>
+          </div>}
+
+          {/* CERTIFICATIONS */}
+          {certifications.length > 0 && <div className="r-section"><div className="r-section-title">Certifications</div>
+            <div className="r-certs-grid">
+              {certifications.map(c => (
+                <div className="r-cert-item" key={c.id}>
+                  <div className="r-cert-name">{c.name}</div>
+                  {c.org && <div className="r-cert-org">{c.org}</div>}
+                </div>
+              ))}
+            </div>
+          </div>}
+
+          {/* PROJECTS */}
+          {projects.length > 0 && <div className="r-section"><div className="r-section-title">Projects</div>
+            {projects.map(proj => (
+              <div className="r-project" key={proj.id}>
+                <div className="r-project-name" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>{proj.name}</span>
+                  {proj.link && (
+                    <a
+                      href={proj.link.startsWith('http') ? proj.link : `https://${proj.link}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ fontSize: '8pt', color: '#2563a8', fontWeight: 'normal', textDecoration: 'underline' }}>
+                      Preview ↗
+                    </a>
+                  )}
+                </div>
+                {proj.desc && <div className="r-project-desc">{proj.desc}</div>}
+              </div>
+            ))}
+          </div>}
+        </div>
+      );
+    }
+
+    /* ===== WORD DOCX GENERATOR ===== */
+    // Builds a valid .docx (ZIP of XML) without any external library
+    function generateDocx(d) {
+      const { personal: p, summary, experience, education, skills, certifications, projects } = d;
+
+      function esc(str) { return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+      // Build paragraph XML helpers
+      function para(text, opts = {}) {
+        const { bold = false, size = 20, color = '1A1A1A', spacing = { before: 0, after: 100 }, indent = 0, italic = false, underline = false, colorOverride } = opts;
+        const fc = colorOverride || color;
+        let rpr = `<w:rPr>${bold ? '<w:b/>' : ''}<w:sz w:val="${size}"/><w:szCs w:val="${size}"/>${italic ? '<w:i/>' : ''}${underline ? '<w:u w:val="single"/>' : ''}<w:color w:val="${fc.replace('#', '')}"/></w:rPr>`;
+        let ppr = `<w:pPr><w:spacing w:before="${spacing.before}" w:after="${spacing.after}"/>${indent ? `<w:ind w:left="${indent}"/>` : ''}`;
+        ppr += '</w:pPr>';
+        return `<w:p>${ppr}<w:r>${rpr}<w:t xml:space="preserve">${esc(text)}</w:t></w:r></w:p>`;
+      }
+
+      function paraTwoCol(left, right, opts = {}) {
+        const { boldLeft = false, boldRight = false, size = 20, colorLeft = '1A1A1A', colorRight = '2563A8' } = opts;
+        return `<w:p>
+      <w:pPr><w:spacing w:before="0" w:after="60"/></w:pPr>
+      <w:r><w:rPr>${boldLeft ? '<w:b/>' : ''}<w:sz w:val="${size}"/><w:szCs w:val="${size}"/><w:color w:val="${colorLeft.replace('#', '')}"/></w:rPr><w:t xml:space="preserve">${esc(left)}</w:t></w:r>
+      <w:r><w:rPr><w:sz w:val="${size}"/><w:szCs w:val="${size}"/></w:rPr><w:tab/></w:r>
+      <w:r><w:rPr>${boldRight ? '<w:b/>' : ''}<w:sz w:val="${size}"/><w:szCs w:val="${size}"/><w:color w:val="${colorRight.replace('#', '')}"/></w:rPr><w:t xml:space="preserve">${esc(right)}</w:t></w:r>
+    </w:p>`;
+      }
+
+      function sectionTitle(text) {
+        return `<w:p>
+      <w:pPr><w:spacing w:before="200" w:after="80"/><w:pBdr><w:bottom w:val="single" w:sz="8" w:space="4" w:color="1A2E4A"/></w:pBdr></w:pPr>
+      <w:r><w:rPr><w:b/><w:caps/><w:sz w:val="21"/><w:szCs w:val="21"/><w:color w:val="1A2E4A"/></w:rPr><w:t>${esc(text)}</w:t></w:r>
+    </w:p>`;
+      }
+
+      function bullet(text) {
+        return `<w:p>
+      <w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr><w:spacing w:before="0" w:after="60"/><w:ind w:left="360" w:hanging="360"/></w:pPr>
+      <w:r><w:rPr><w:sz w:val="19"/><w:szCs w:val="19"/><w:color w:val="222222"/></w:rPr><w:t xml:space="preserve">${esc(text)}</w:t></w:r>
+    </w:p>`;
+      }
+
+      function emptyPara() { return `<w:p><w:pPr><w:spacing w:before="0" w:after="80"/></w:pPr></w:p>`; }
+
+      // Build body content and track hyperlinks
+      let body = '';
+      let hyperlinks = [];
+      let relIdCounter = 4; // Start after rId1, rId2, rId3
+
+      // Helper for project title + link
+      function projectTitleWithLink(text, url) {
+        let ppr = `<w:pPr><w:spacing w:before="80" w:after="40"/><w:tabs><w:tab w:val="right" w:pos="10080"/></w:tabs></w:pPr>`;
+        let titleR = `<w:r><w:rPr><w:b/><w:sz w:val="20"/><w:szCs w:val="20"/><w:color w:val="1A2E4A"/></w:rPr><w:t>${esc(text)}</w:t></w:r>`;
+
+        if (!url) {
+          return `<w:p>${ppr}${titleR}</w:p>`;
+        }
+
+        let formattedUrl = url.startsWith('http') ? url : `https://${url}`;
+        let relId = `rId${relIdCounter++}`;
+        hyperlinks.push({ id: relId, url: formattedUrl });
+
+        let linkXml = `<w:hyperlink r:id="${relId}">
+          <w:r><w:rPr><w:sz w:val="16"/><w:szCs w:val="16"/><w:color w:val="2563A8"/><w:u w:val="single"/></w:rPr><w:t xml:space="preserve">Preview ↗</w:t></w:r>
+        </w:hyperlink>`;
+
+        return `<w:p>${ppr}${titleR}<w:r><w:tab/></w:r>${linkXml}</w:p>`;
+      }
+
+      // NAME
+      body += `<w:p><w:pPr><w:spacing w:before="0" w:after="60"/><w:jc w:val="center"/></w:pPr>
+    <w:r><w:rPr><w:b/><w:sz w:val="45"/><w:szCs w:val="45"/><w:color w:val="1A2E4A"/></w:rPr><w:t>${esc(p.name)}</w:t></w:r></w:p>`;
+
+      // TITLE
+      if (p.title) body += `<w:p><w:pPr><w:spacing w:before="0" w:after="80"/><w:jc w:val="center"/></w:pPr>
+    <w:r><w:rPr><w:b/><w:sz w:val="23"/><w:szCs w:val="23"/><w:color w:val="2563A8"/></w:rPr><w:t>${esc(p.title)}</w:t></w:r></w:p>`;
+
+      // CONTACT LINE
+      const contactParts = [p.phone, p.email, p.linkedin, p.location].filter(Boolean);
+      if (contactParts.length) {
+        body += `<w:p><w:pPr><w:spacing w:before="40" w:after="120"/><w:jc w:val="center"/><w:pBdr><w:bottom w:val="single" w:sz="8" w:space="4" w:color="1A2E4A"/></w:pBdr></w:pPr>
+      <w:r><w:rPr><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="333333"/></w:rPr><w:t>${esc(contactParts.join('  |  '))}</w:t></w:r></w:p>`;
+      }
+
+      // SUMMARY
+      if (summary) {
+        body += sectionTitle('Professional Summary');
+        body += `<w:p><w:pPr><w:spacing w:before="0" w:after="80"/><w:jc w:val="both"/></w:pPr>
+      <w:r><w:rPr><w:sz w:val="19"/><w:szCs w:val="19"/><w:color w:val="222222"/></w:rPr><w:t xml:space="preserve">${esc(summary)}</w:t></w:r></w:p>`;
+      }
+
+      // EXPERIENCE
+      if (experience.length) {
+        body += sectionTitle('Work Experience');
+        experience.forEach(exp => {
+          body += `<w:p><w:pPr><w:spacing w:before="100" w:after="20"/></w:pPr>
+        <w:r><w:rPr><w:b/><w:sz w:val="21"/><w:szCs w:val="21"/><w:color w:val="1A1A1A"/></w:rPr><w:t xml:space="preserve">${esc(exp.title)}</w:t></w:r>
+        <w:r><w:rPr><w:sz w:val="21"/><w:szCs w:val="21"/><w:color w:val="444444"/></w:rPr><w:t xml:space="preserve">   |   </w:t></w:r>
+        <w:r><w:rPr><w:sz w:val="21"/><w:szCs w:val="21"/><w:color w:val="2563A8"/></w:rPr><w:t xml:space="preserve">${esc(exp.company)}</w:t></w:r>
+      </w:p>`;
+          const dateStr = exp.start && exp.end ? `${exp.start} – ${exp.end}` : exp.start || exp.end;
+          if (dateStr || exp.location) {
+            body += `<w:p><w:pPr><w:spacing w:before="0" w:after="60"/></w:pPr>`;
+            let parts = [];
+            if (dateStr) parts.push(`<w:r><w:rPr><w:b/><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="1A1A1A"/></w:rPr><w:t>${esc(dateStr)}</w:t></w:r>`);
+            if (exp.location) parts.push(`<w:r><w:rPr><w:b/><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="2563A8"/></w:rPr><w:t>${esc(exp.location)}</w:t></w:r>`);
+            body += parts.join(`<w:r><w:rPr><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="444444"/></w:rPr><w:t xml:space="preserve">   •   </w:t></w:r>`);
+            body += `</w:p>`;
+          }
+          exp.bullets.filter(b => b.trim()).forEach(b => { body += bullet(b); });
+        });
+      }
+
+      // EDUCATION
+      if (education.length) {
+        body += sectionTitle('Education');
+        education.forEach(edu => {
+          body += `<w:p><w:pPr><w:spacing w:before="100" w:after="20"/></w:pPr>
+        <w:r><w:rPr><w:b/><w:sz w:val="21"/><w:szCs w:val="21"/><w:color w:val="1A1A1A"/></w:rPr><w:t xml:space="preserve">${esc(edu.degree)}</w:t></w:r>
+        <w:r><w:rPr><w:sz w:val="21"/><w:szCs w:val="21"/><w:color w:val="444444"/></w:rPr><w:t xml:space="preserve">   |   </w:t></w:r>
+        <w:r><w:rPr><w:sz w:val="21"/><w:szCs w:val="21"/><w:color w:val="2563A8"/></w:rPr><w:t xml:space="preserve">${esc(edu.school)}</w:t></w:r>
+      </w:p>`;
+          const dateStr2 = edu.start && edu.end ? `${edu.start} – ${edu.end}` : edu.start || edu.end;
+          if (dateStr2 || edu.location || edu.gpa) {
+            body += `<w:p><w:pPr><w:spacing w:before="0" w:after="60"/></w:pPr>`;
+            let parts = [];
+            if (dateStr2) parts.push(`<w:r><w:rPr><w:b/><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="1A1A1A"/></w:rPr><w:t>${esc(dateStr2)}</w:t></w:r>`);
+            if (edu.location) parts.push(`<w:r><w:rPr><w:b/><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="2563A8"/></w:rPr><w:t>${esc(edu.location)}</w:t></w:r>`);
+            if (edu.gpa) parts.push(`<w:r><w:rPr><w:b/><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="1A2E4A"/></w:rPr><w:t>${esc(edu.gpa)}</w:t></w:r>`);
+            body += parts.join(`<w:r><w:rPr><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="444444"/></w:rPr><w:t xml:space="preserve">   •   </w:t></w:r>`);
+            body += `</w:p>`;
+          }
+          if (edu.bullet) body += `<w:p><w:pPr><w:spacing w:before="0" w:after="80"/></w:pPr>
+        <w:r><w:rPr><w:i/><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="444444"/></w:rPr><w:t>${esc(edu.bullet)}</w:t></w:r></w:p>`;
+        });
+      }
+
+      // SKILLS
+      if (skills.length) {
+        body += sectionTitle('Skills');
+        body += `<w:p><w:pPr><w:spacing w:before="0" w:after="100"/></w:pPr>
+      <w:r><w:rPr><w:sz w:val="20"/><w:szCs w:val="20"/><w:color w:val="222222"/></w:rPr><w:t>${esc(skills.join('   •   '))}</w:t></w:r></w:p>`;
+      }
+
+      // CERTIFICATIONS
+      if (certifications.length) {
+        body += sectionTitle('Certifications');
+        certifications.forEach(c => {
+          body += `<w:p><w:pPr><w:spacing w:before="40" w:after="60"/></w:pPr>
+        <w:r><w:rPr><w:b/><w:sz w:val="19"/><w:szCs w:val="19"/><w:color w:val="1A1A1A"/></w:rPr><w:t xml:space="preserve">${esc(c.name)}</w:t></w:r>
+        ${c.org ? `<w:r><w:rPr><w:sz w:val="19"/><w:szCs w:val="19"/><w:color w:val="2563A8"/></w:rPr><w:t xml:space="preserve">  –  ${esc(c.org)}</w:t></w:r>` : ''}
+      </w:p>`;
+        });
+      }
+
+      // PROJECTS
+      if (projects.length) {
+        body += sectionTitle('Projects');
+        projects.forEach(proj => {
+          body += projectTitleWithLink(proj.name, proj.link);
+          if (proj.desc) body += `<w:p><w:pPr><w:spacing w:before="0" w:after="60"/></w:pPr>
+        <w:r><w:rPr><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="333333"/></w:rPr><w:t xml:space="preserve">${esc(proj.desc)}</w:t></w:r></w:p>`;
+        });
+      }
+
+      // Assemble document.xml
+      const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
+  xmlns:mo="http://schemas.microsoft.com/office/mac/office/2008/main"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:mv="urn:schemas-microsoft-com:mac:vml"
+  xmlns:o="urn:schemas-microsoft-com:office:office"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+  xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
+  xmlns:v="urn:schemas-microsoft-com:vml"
+  xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
+  xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+  xmlns:w10="urn:schemas-microsoft-com:office:word"
+  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+  xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
+  xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
+  xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk"
+  xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
+  xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
+  mc:Ignorable="w14 wp14">
+<w:body>
+${body}
+<w:sectPr>
+  <w:pgSz w:w="12240" w:h="15840"/>
+  <w:pgMar w:top="1080" w:right="1080" w:bottom="1080" w:left="1080" w:header="720" w:footer="720" w:gutter="0"/>
+</w:sectPr>
+</w:body>
+</w:document>`;
+
+      const numberingXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:abstractNum w:abstractNumId="0">
+    <w:lvl w:ilvl="0">
+      <w:start w:val="1"/>
+      <w:numFmt w:val="bullet"/>
+      <w:lvlText w:val="&#x2022;"/>
+      <w:lvlJc w:val="left"/>
+      <w:pPr><w:ind w:left="360" w:hanging="360"/></w:pPr>
+      <w:rPr><w:sz w:val="19"/></w:rPr>
+    </w:lvl>
+  </w:abstractNum>
+  <w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num>
+</w:numbering>`;
+
+      const settingsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:defaultTabStop w:val="720"/>
+  <w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat>
+</w:settings>`;
+
+      const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:docDefaults>
+    <w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="21"/><w:szCs w:val="21"/></w:rPr></w:rPrDefault>
+  </w:docDefaults>
+  <w:style w:type="paragraph" w:styleId="Normal" w:default="1">
+    <w:name w:val="Normal"/>
+    <w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="21"/></w:rPr>
+  </w:style>
+</w:styles>`;
+
+      let relsXmlList = `  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/>
+  <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/>\n`;
+      hyperlinks.forEach(hl => {
+        relsXmlList += `  <Relationship Id="${hl.id}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${esc(hl.url)}" TargetMode="External"/>\n`;
+      });
+
+      const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+${relsXmlList}</Relationships>`;
+
+      const appRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
+
+      const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+  <Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>
+  <Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>
+</Types>`;
+
+      const zip = new JSZip();
+      zip.file('[Content_Types].xml', contentTypesXml);
+      zip.file('_rels/.rels', appRelsXml);
+      zip.file('word/document.xml', documentXml);
+      zip.file('word/styles.xml', stylesXml);
+      zip.file('word/settings.xml', settingsXml);
+      zip.file('word/numbering.xml', numberingXml);
+      zip.file('word/_rels/document.xml.rels', relsXml);
+
+      return zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    }
+
+    /* ===== MAIN APP ===== */
+    const TABS = ['Personal', 'Summary', 'Experience', 'Education', 'Skills', 'Certifications', 'Projects'];
+
+    function App() {
+      const [data, setData] = useState(INIT);
+      const [tab, setTab] = useState(0);
+      const [hasReachedEnd, setHasReachedEnd] = useState(false);
+      const [dlPdf, setDlPdf] = useState(false);
+      const [dlWord, setDlWord] = useState(false);
+
+      const handleTabChange = (i) => {
+        setTab(i);
+        if (i === TABS.length - 1) setHasReachedEnd(true);
+      };
+
+      const handleNext = () => {
+        if (tab < TABS.length - 1) handleTabChange(tab + 1);
+      };
+
+      const handleBack = () => {
+        if (tab > 0) handleTabChange(tab - 1);
+      };
+
+      const upd = useCallback((k, v) => setData(prev => ({ ...prev, [k]: v })), []);
+
+      const downloadPDF = async () => {
+        setDlPdf(true);
+        try {
+          const el = document.getElementById('resume-preview');
+          const canvas = await html2canvas(el, { scale: 3, useCORS: true, logging: false, backgroundColor: '#ffffff', windowWidth: el.scrollWidth, windowHeight: el.scrollHeight });
+          const img = canvas.toDataURL('image/png');
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+          const pw = pdf.internal.pageSize.getWidth();
+          const ph = pdf.internal.pageSize.getHeight();
+          const ratio = canvas.height / canvas.width;
+          let ih = pw * ratio;
+
+          // Instead of looping to add multiple pages, scale it down to fit on one PDF page.
+          if (ih > ph) {
+            // It exceeds one page. Scale to fit height.
+            const scaleToFitHeightRatio = ph / ih;
+            const iw = pw * scaleToFitHeightRatio;
+            // Center it horizontally after scaling.
+            const xOffset = (pw - iw) / 2;
+            pdf.addImage(img, 'PNG', xOffset, 0, iw, ph, '', 'FAST');
+          } else {
+            pdf.addImage(img, 'PNG', 0, 0, pw, ih, '', 'FAST');
+          }
+
+          pdf.save(`${(data.personal.name || 'Resume').replace(/\s+/g, '_')}_Resume.pdf`);
+        } catch (e) { alert('PDF export failed: ' + e.message); }
+        setDlPdf(false);
+      };
+
+      const downloadWord = async () => {
+        setDlWord(true);
+        try {
+          const blob = await generateDocx(data);
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = `${(data.personal.name || 'Resume').replace(/\s+/g, '_')}_Resume.docx`;
+          document.body.appendChild(a); a.click();
+          setTimeout(() => { URL.revokeObjectURL(url); document.body.removeChild(a); }, 1000);
+        } catch (e) { alert('Word export failed: ' + e.message); }
+        setDlWord(false);
+      };
+
+      return (
+        <div className="app">
+          {/* SIDEBAR */}
+          <div className="sidebar">
+            <div className="sidebar-header">
+              <h1>ATS Resume Builder</h1>
+              <p>Clean, parseable, recruiter-ready <span className="dev-badge">✓ Verified | Dev: Sarmad Nadeem</span></p>
+              <div className="ats-badge">✓ ATS OPTIMIZED</div>
+            </div>
+            <div className="sidebar-tabs">
+              {TABS.map((t, i) => <button key={i} className={tab === i ? 'active' : ''} onClick={() => handleTabChange(i)}>{t}</button>)}
+            </div>
+            <div className="tab-body">
+              {tab === 0 && <PersonalForm data={data.personal} onChange={v => upd('personal', v)} />}
+              {tab === 1 && <SummaryForm data={data.summary} onChange={v => upd('summary', v)} />}
+              {tab === 2 && <ExperienceForm data={data.experience} onChange={v => upd('experience', v)} />}
+              {tab === 3 && <EducationForm data={data.education} onChange={v => upd('education', v)} />}
+              {tab === 4 && <SkillsForm data={data.skills} onChange={v => upd('skills', v)} />}
+              {tab === 5 && <CertsForm data={data.certifications} onChange={v => upd('certifications', v)} />}
+              {tab === 6 && <ProjectsForm data={data.projects} onChange={v => upd('projects', v)} />}
+            </div>
+
+            <div className="form-nav-buttons">
+              <button className="btn-nav btn-back" onClick={handleBack} style={{ visibility: tab === 0 ? 'hidden' : 'visible' }}>← Back</button>
+              <button className="btn-nav" onClick={handleNext} disabled={tab === TABS.length - 1} style={{ display: tab === TABS.length - 1 ? 'none' : 'block' }}>Next Section →</button>
+            </div>
+
+            {hasReachedEnd && (
+              <div className="download-bar">
+                <button className={`btn-dl btn-dl-pdf ${dlPdf ? 'loading' : ''}`} onClick={downloadPDF} disabled={dlPdf || dlWord}>
+                  {dlPdf ? <><div className="btn-spinner"></div> Processing</> : '⬇ PDF'}
+                </button>
+                <button className={`btn-dl btn-dl-word ${dlWord ? 'loading' : ''}`} onClick={downloadWord} disabled={dlPdf || dlWord}>
+                  {dlWord ? <><div className="btn-spinner"></div> Processing</> : '⬇ Word (.docx)'}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* PREVIEW */}
+          <div className={`preview-area ${dlPdf || dlWord ? 'processing' : ''}`}>
+            <div className="preview-label">
+              <strong>Live Preview</strong>
+              <span>— ATS-friendly single-column layout</span>
+              <span className="ats-score">✓ ATS Ready</span>
+            </div>
+            <ResumePreview d={data} />
+          </div>
+
+          {/* FULL SCREEN OVERLAY */}
+          {(dlPdf || dlWord) && (
+            <div className="download-overlay">
+              <div className="large-spinner"></div>
+              <h2>Optimizing for ATS Compliance...</h2>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+
+</html>

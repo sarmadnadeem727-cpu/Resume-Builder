@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS Resume Builder | By Sarmad Nadeem</title>
+    <!-- Use Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- IBM Plex Sans Font -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: '#1a2e4a',
+                        actionBlue: '#2563a8',
+                        light: '#f8fafc',
+                    },
+                    fontFamily: {
+                        sans: ['IBM Plex Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base / Resets */
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: theme('colors.light');
+            color: #334155;
+            overflow-x: hidden;
+        }
+
+        /* Hover & Lift Utilities */
+        .hover-lift {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 168, 0.25), 0 8px 10px -6px rgba(37, 99, 168, 0.1);
+        }
+
+        /* Pulse Animation for CTA */
+        @keyframes subtlePulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 168, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(37, 99, 168, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 168, 0);
+            }
+        }
+
+        .btn-pulse {
+            animation: subtlePulse 2.5s infinite;
+        }
+
+        /* Scanning Animation on Hero Image */
+        .scan-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            box-shadow: 0 20px 25px -5px rgba(26, 46, 74, 0.1), 0 10px 10px -5px rgba(26, 46, 74, 0.04);
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(37, 99, 168, 0.8), #4ade80, rgba(37, 99, 168, 0.8), transparent);
+            box-shadow: 0 0 15px 3px rgba(74, 222, 128, 0.4);
+            z-index: 10;
+            animation: scan 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scan {
+            0% {
+                top: -10%;
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 110%;
+                opacity: 0;
+            }
+        }
+
+        /* Scroll Reveal Utility */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Developer Badge Gradient */
+        .badge-gradient {
+            background: linear-gradient(135deg, rgba(26, 46, 74, 0.03), rgba(37, 99, 168, 0.08));
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <!-- NAVIGATION -->
+    <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-navy font-bold text-xl tracking-tight">ATS<span
+                        class="text-actionBlue">Builder</span></span>
+            </div>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#features"
+                    class="text-sm font-semibold text-slate-600 hover:text-actionBlue transition-colors">Features</a>
+                <a href="#developer"
+                    class="text-sm font-semibold text-slate-600 hover:text-actionBlue transition-colors">The
+                    Developer</a>
+                <a href="resume-builder-ats.html"
+                    class="hover-lift btn-pulse bg-actionBlue text-white px-5 py-2.5 rounded-lg text-sm font-bold tracking-wide transition-colors">Launch
+                    Builder</a>
+            </div>
+            <!-- Mobile Menu Button (visual only for this demo) -->
+            <button class="md:hidden text-slate-600">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-white">
+        <!-- Abstract Background Shapes -->
+        <div class="absolute top-0 inset-x-0 h-full overflow-hidden -z-10 opacity-30 pointer-events-none">
+            <div
+                class="absolute -top-40 -right-40 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob">
+            </div>
+            <div
+                class="absolute top-40 -left-40 w-72 h-72 bg-emerald-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000">
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-center">
+
+                <!-- Hero Text -->
+                <div class="lg:col-span-6 text-center lg:text-left reveal">
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 mb-6">
+                        <span class="flex h-2 w-2 rounded-full bg-actionBlue"></span>
+                        <span class="text-xs font-semibold text-actionBlue tracking-wide uppercase">100% Privacy
+                            Focused</span>
+                    </div>
+
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-navy leading-[1.15] tracking-tight mb-6">
+                        The Resume Builder That <span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-actionBlue to-cyan-500">Actually
+                            Beats the Bots.</span>
+                    </h1>
+
+                    <p class="text-lg text-slate-600 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light">
+                        A high-performance, privacy-focused ATS optimization tool designed to help professionals land
+                        more interviews. Zero server uploads. Zero parsing errors.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                        <a href="resume-builder-ats.html"
+                            class="w-full sm:w-auto hover-lift btn-pulse bg-navy text-white px-8 py-4 rounded-xl text-base font-bold tracking-wide text-center">
+                            Launch Builder Now
+                        </a>
+                        <a href="#demo"
+                            class="w-full sm:w-auto text-slate-600 font-semibold hover:text-navy transition-colors px-8 py-4 text-center">
+                            View Live Demo →
+                        </a>
+                    </div>
+
+                    <p class="mt-6 text-xs text-slate-400 font-medium tracking-wide uppercase">Engineered by Sarmad
+                        Nadeem</p>
+                </div>
+
+                <!-- Hero Image & Scan Animation -->
+                <div class="lg:col-span-6 mt-16 lg:mt-0 reveal" style="transition-delay: 200ms;">
+                    <div
+                        class="scan-container bg-white border border-gray-100 aspect-[4/5] sm:aspect-[3/4] lg:aspect-auto lg:h-[600px] w-full max-w-lg mx-auto relative flex items-center justify-center p-4">
+                        <!-- Abstract Document Representation -->
+                        <div
+                            class="w-full h-full bg-slate-50 border border-slate-200 shadow-sm p-8 flex flex-col gap-4">
+                            <!-- Header Mock -->
+                            <div class="flex flex-col items-center gap-2 pb-6 border-b border-navy">
+                                <div class="w-48 h-6 bg-navy rounded"></div>
+                                <div class="w-32 h-3 bg-actionBlue rounded"></div>
+                                <div class="flex gap-4 mt-2">
+                                    <div class="w-16 h-2 bg-slate-300 rounded"></div>
+                                    <div class="w-20 h-2 bg-slate-300 rounded"></div>
+                                    <div class="w-16 h-2 bg-slate-300 rounded"></div>
+                                </div>
+                            </div>
+                            <!-- Body Mock -->
+                            <div class="w-32 h-4 bg-navy rounded mt-4"></div>
+                            <div class="w-full h-2 bg-slate-200 rounded"></div>
+                            <div class="w-5/6 h-2 bg-slate-200 rounded"></div>
+                            <div class="w-full h-2 bg-slate-200 rounded"></div>
+
+                            <div class="w-32 h-4 bg-navy rounded mt-6"></div>
+                            <div class="flex justify-between w-full mt-2">
+                                <div class="w-32 h-3 bg-slate-400 rounded"></div>
+                                <div class="w-20 h-3 bg-slate-300 rounded"></div>
+                            </div>
+                            <div class="w-48 h-2 bg-actionBlue rounded mt-1"></div>
+                            <div class="pl-4 flex flex-col gap-2 mt-3">
+                                <div class="w-full h-2 bg-slate-200 rounded"></div>
+                                <div class="w-4/5 h-2 bg-slate-200 rounded"></div>
+                                <div class="w-full h-2 bg-slate-200 rounded"></div>
+                            </div>
+                        </div>
+
+                        <!-- The Scanning Laser -->
+                        <div class="scan-line"></div>
+
+                        <!-- Overlay ATS Badges -->
+                        <div
+                            class="absolute bottom-6 right-6 bg-green-50/90 backdrop-blur border border-green-200 text-green-700 font-bold text-xs px-3 py-1.5 rounded-full shadow-sm flex items-center gap-2">
+                            <span class="block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> ATS Readable
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CORE VALUE PROPS -->
+    <section id="features" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 reveal">
+                <h2 class="text-3xl font-bold text-navy tracking-tight sm:text-4xl">Engineered for Results.</h2>
+                <p class="mt-4 text-lg text-slate-600 font-light">Stop watching your resume disappear into black boxes.
+                    We built a processor that speaks the parser's language.</p>
+            </div>
+
+            <div class="relative max-w-lg mx-auto">
+                <!-- Feature Carousel Container -->
+                <div id="feature-carousel" class="relative">
+
+                    <!-- Prop 1 -->
+                    <div class="feature-card bg-white rounded-2xl p-8 border border-gray-100 shadow-lg reveal active"
+                        data-index="0">
+                        <div
+                            class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-6 border border-blue-100 text-actionBlue">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">Privacy First</h3>
+                        <p class="text-slate-600 font-light leading-relaxed mb-6">
+                            100% client-side processing. Your personal data never touches a server, leaves your browser,
+                            or gets stored in a database.
+                        </p>
+                    </div>
+
+                    <!-- Prop 2 -->
+                    <div class="feature-card hidden bg-white rounded-2xl p-8 border border-gray-100 shadow-lg"
+                        data-index="1">
+                        <div
+                            class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mb-6 border border-emerald-100 text-emerald-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-3 2.148 2.148A12.061 12.061 0 0116.5 7.605" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">Algorithm Ready</h3>
+                        <p class="text-slate-600 font-light leading-relaxed mb-6">
+                            Engineered specifically for Applicant Tracking Systems using a rigorous single-column,
+                            highly logical HTML-to-Doc layout.
+                        </p>
+                    </div>
+
+                    <!-- Prop 3 -->
+                    <div class="feature-card hidden bg-white rounded-2xl p-8 border border-gray-100 shadow-lg"
+                        data-index="2">
+                        <div
+                            class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center mb-6 border border-purple-100 text-purple-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12l3 3m0 0l3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">Hybrid Exports</h3>
+                        <p class="text-slate-600 font-light leading-relaxed mb-6">
+                            Instant, high-fidelity PDF and raw `.docx` generation right in the browser utilizing JSZip
+                            and html2canvas algorithms.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Carousel Controls -->
+                <div class="flex justify-between items-center mt-6">
+                    <div class="flex gap-2" id="carousel-dots">
+                        <span class="w-2 h-2 rounded-full bg-navy transition-all"></span>
+                        <span class="w-2 h-2 rounded-full bg-slate-300 transition-all"></span>
+                        <span class="w-2 h-2 rounded-full bg-slate-300 transition-all"></span>
+                    </div>
+                    <button id="next-feature-btn"
+                        class="text-actionBlue font-bold text-sm tracking-wide hover:text-navy transition-colors flex items-center gap-2">
+                        Next Feature <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- INTERACTIVE FEATURE GRID -->
+    <section id="demo" class="py-24 bg-white border-y border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="lg:grid lg:grid-cols-2 gap-16 items-center">
+
+                <div class="reveal">
+                    <h2 class="text-3xl font-bold text-navy mb-6">Precision Tooling & Live Sync</h2>
+                    <p class="text-lg text-slate-600 font-light mb-8">
+                        The interface binds state updates synchronously to the render tree. Every keystroke is
+                        visualized instantly, providing absolute confidence in the final document's appearance.
+                    </p>
+
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <div
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mt-1">
+                                <span class="text-actionBlue text-sm font-bold">1</span>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-navy font-bold">Real-time Form Synchronization</h4>
+                                <p class="text-slate-500 font-light text-sm mt-1">Split-screen React architecture
+                                    ensures zero latency between data entry and document visualization.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mt-1">
+                                <span class="text-actionBlue text-sm font-bold">2</span>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-navy font-bold">Custom Python Sub-routines</h4>
+                                <p class="text-slate-500 font-light text-sm mt-1">Built alongside custom precision
+                                    scripts (`bump_font.py`) to systematically map and re-scale CSS and underlying XML
+                                    font nodes for pixel-perfect ATS sizing.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Feature Mockup -->
+                <div
+                    class="mt-12 lg:mt-0 reveal border-8 border-slate-100 rounded-2xl overflow-hidden shadow-xl bg-slate-200">
+                    <div class="flex h-[400px]">
+                        <!-- Form Side -->
+                        <div class="w-1/2 bg-white border-r border-slate-200 p-4 relative overflow-hidden">
+                            <div class="w-24 h-3 bg-slate-300 rounded mb-4"></div>
+                            <div class="w-full h-8 border border-slate-200 rounded mb-3 flex items-center px-3">
+                                <span class="w-2/3 h-2 bg-slate-300 rounded block"></span>
+                            </div>
+                            <div
+                                class="w-full h-24 border border-blue-400 bg-blue-50 rounded mb-3 p-3 relative shadow-[0_0_0_2px_rgba(37,99,168,0.2)]">
+                                <div class="w-2 h-4 bg-actionBlue animate-pulse absolute top-3 left-3"></div>
+                                <span class="w-4/5 h-2 bg-actionBlue rounded block ml-3 mt-1 opacity-50"></span>
+                            </div>
+                            <div
+                                class="absolute bottom-4 right-4 px-3 py-1.5 bg-navy text-white text-xs font-bold rounded shadow hover-lift">
+                                Generate PDF</div>
+                        </div>
+                        <!-- Preview Side -->
+                        <div class="w-1/2 bg-slate-300 p-6 flex justify-center items-start">
+                            <div class="w-full aspect-[1/1.4] bg-white shadow-lg p-4 flex flex-col items-center">
+                                <div class="w-1/2 h-3 bg-navy rounded mb-1"></div>
+                                <div class="w-1/3 h-2 bg-actionBlue rounded mb-4 text-center"></div>
+                                <div class="w-full h-[1px] bg-navy mb-4"></div>
+                                <div class="w-full h-2 bg-slate-200 rounded mb-2"></div>
+                                <div class="w-[80%] h-2 bg-slate-200 rounded mb-4"></div>
+                                <div class="w-full border-t border-slate-200 pt-2 flex justify-between mt-auto">
+                                    <div class="w-12 h-1.5 bg-slate-300 rounded"></div>
+                                    <div class="w-8 h-1.5 bg-slate-300 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- DEVELOPER VERIFIED CARD -->
+    <section id="developer" class="py-24 bg-light relative overflow-hidden">
+        <!-- Abstract Decoration -->
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-20 pointer-events-none">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#2563a8"
+                    d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,81.1,-46.3C90.4,-33.5,96,-18,95.5,-2.9C95,12.2,88.4,26.8,79.5,40.1C70.6,53.4,59.4,65.4,45.8,73.5C32.2,81.6,16.1,85.8,0.7,84.6C-14.7,83.4,-29.4,76.8,-42.6,68.2C-55.8,59.6,-67.5,49,-75.7,35.9C-83.9,22.8,-88.6,7.2,-87.3,-7.8C-86,-22.8,-78.7,-37.2,-68.8,-48.9C-58.9,-60.6,-46.4,-69.6,-32.8,-75.9C-19.2,-82.2,-4.5,-85.8,10.1,-84C24.7,-82.2,30.6,-83.6,44.7,-76.4Z"
+                    transform="translate(100 100)" />
+            </svg>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-6 lg:px-8 relative z-10">
+            <div
+                class="badge-gradient border border-navy/10 rounded-3xl p-8 md:p-12 shadow-2xl backdrop-blur-sm reveal hover-lift">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <!-- Avatar/Initials -->
+                    <div
+                        class="flex-shrink-0 w-32 h-32 rounded-full bg-navy text-white flex items-center justify-center text-4xl font-bold tracking-tighter border-4 border-white shadow-lg">
+                        SN
+                    </div>
+
+                    <div class="text-center md:text-left">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 mb-3 shadow-sm">
+                            <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-xs font-bold text-navy tracking-wide uppercase">Verified Developer</span>
+                        </div>
+
+                        <h2 class="text-3xl font-bold text-navy mb-2">Sarmad Nadeem</h2>
+                        <h3 class="text-actionBlue font-semibold mb-4 text-lg">Senior Full-Stack Developer & Supply
+                            Chain Planner</h3>
+
+                        <p class="text-slate-600 font-light leading-relaxed mb-6 italic">
+                            "Bridging the gap between technical planning and digital tools."
+                        </p>
+
+                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                            <span
+                                class="px-4 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-500 shadow-sm">React
+                                18</span>
+                            <span
+                                class="px-4 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-500 shadow-sm">Python</span>
+                            <span
+                                class="px-4 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-500 shadow-sm">UI/UX</span>
+                            <span
+                                class="px-4 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-500 shadow-sm">Supply
+                                Chain</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER CTA -->
+    <footer class="bg-navy py-16 text-center border-t-8 border-actionBlue relative overflow-hidden">
+        <div
+            class="absolute top-0 inset-x-0 w-full h-1 bg-gradient-to-r from-transparent via-actionBlue to-transparent opacity-50 blur-sm">
+        </div>
+        <div class="max-w-3xl mx-auto px-6 relative z-10 reveal">
+            <h2 class="text-3xl font-bold text-white mb-6">Ready to beat the parser?</h2>
+            <p class="text-blue-100 font-light mb-8 max-w-xl mx-auto">Skip the bloatware and complex logins. Build a
+                compliant, professional resume purely in your browser right now.</p>
+            <a href="resume-builder-ats.html"
+                class="inline-block hover-lift btn-pulse bg-white text-navy px-10 py-4 rounded-xl text-lg font-bold tracking-wide shadow-xl">
+                Start Building Now
+            </a>
+            <p class="mt-12 text-sm text-blue-200/50 font-light">© 2026 Sarmad Nadeem. All systems operational.</p>
+        </div>
+    </footer>
+
+    <!-- Intersection Observer for Scroll Animations -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            document.querySelectorAll('.reveal').forEach((el) => {
+                observer.observe(el);
+            });
+
+            // Feature Carousel Logic
+            const cards = document.querySelectorAll('.feature-card');
+            const dots = document.querySelectorAll('#carousel-dots span');
+            const nextBtn = document.getElementById('next-feature-btn');
+            let currentFeatureIdx = 0;
+
+            if (nextBtn && cards.length > 0) {
+                nextBtn.addEventListener('click', () => {
+                    // Hide current
+                    cards[currentFeatureIdx].classList.add('hidden');
+                    cards[currentFeatureIdx].classList.remove('active', 'reveal');
+                    dots[currentFeatureIdx].classList.replace('bg-navy', 'bg-slate-300');
+
+                    // Increment
+                    currentFeatureIdx = (currentFeatureIdx + 1) % cards.length;
+
+                    // Show next
+                    cards[currentFeatureIdx].classList.remove('hidden');
+                    // adding simple fade in animation class
+                    cards[currentFeatureIdx].classList.add('animate-[fadeIn_0.4s_ease-out]');
+                    dots[currentFeatureIdx].classList.replace('bg-slate-300', 'bg-navy');
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
