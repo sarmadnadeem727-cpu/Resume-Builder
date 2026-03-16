@@ -1,547 +1,1532 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATS Resume Builder | By Sarmad Nadeem</title>
-    <!-- Use Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- IBM Plex Sans Font -->
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>ATS Resume Builder | By Sarmad Nadeem</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ====================================================
+       DESIGN SYSTEM — Gemini Deep Ocean
+    ==================================================== */
+    :root {
+      --bg-void:        #030712;
+      --bg-deep:        #060d1f;
+      --bg-panel:       rgba(8, 18, 42, 0.7);
+      --blue-core:      #1a6cf5;
+      --blue-bright:    #4d9fff;
+      --blue-aurora:    #0ea5e9;
+      --blue-glow:      rgba(26, 108, 245, 0.35);
+      --blue-mist:      rgba(77, 159, 255, 0.12);
+      --cyan-spark:     #22d3ee;
+      --indigo-deep:    #1e1b4b;
+      --slate-hi:       #e2e8f0;
+      --slate-mid:      #94a3b8;
+      --slate-lo:       #475569;
+      --border-subtle:  rgba(255,255,255,0.06);
+      --border-glow:    rgba(26,108,245,0.4);
+      --font-display:   'Syne', sans-serif;
+      --font-body:      'Plus Jakarta Sans', sans-serif;
+      --ease-spring:    cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      --ease-out:       cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        navy: '#1a2e4a',
-                        actionBlue: '#2563a8',
-                        light: '#f8fafc',
-                    },
-                    fontFamily: {
-                        sans: ['IBM Plex Sans', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <style>
-        /* Base / Resets */
-        body {
-            font-family: 'IBM Plex Sans', sans-serif;
-            background-color: theme('colors.light');
-            color: #334155;
-            overflow-x: hidden;
-        }
+    html { scroll-behavior: smooth; }
 
-        /* Hover & Lift Utilities */
-        .hover-lift {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-void);
+      color: var(--slate-mid);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        .hover-lift:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(37, 99, 168, 0.25), 0 8px 10px -6px rgba(37, 99, 168, 0.1);
-        }
+    /* ====================================================
+       CANVAS BACKGROUND — Animated Constellation Grid
+    ==================================================== */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-        /* Pulse Animation for CTA */
-        @keyframes subtlePulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(37, 99, 168, 0.4);
-            }
+    /* Radial overlays for depth */
+    .bg-radials {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% -5%, rgba(26,108,245,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(14,165,233,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 50% at 50% 50%, rgba(30,27,75,0.3) 0%, transparent 80%);
+    }
 
-            70% {
-                box-shadow: 0 0 0 10px rgba(37, 99, 168, 0);
-            }
+    /* ====================================================
+       FILM GRAIN
+    ==================================================== */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+    }
 
-            100% {
-                box-shadow: 0 0 0 0 rgba(37, 99, 168, 0);
-            }
-        }
+    /* ====================================================
+       NAVIGATION
+    ==================================================== */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 0 clamp(1.25rem, 5vw, 3rem);
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(3, 7, 18, 0.75);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background 0.4s ease;
+    }
 
-        .btn-pulse {
-            animation: subtlePulse 2.5s infinite;
-        }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+    .nav-logo span { color: var(--blue-bright); }
 
-        /* Scanning Animation on Hero Image */
-        .scan-container {
-            position: relative;
-            overflow: hidden;
-            border-radius: 0.5rem;
-            box-shadow: 0 20px 25px -5px rgba(26, 46, 74, 0.1), 0 10px 10px -5px rgba(26, 46, 74, 0.04);
-        }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+      list-style: none;
+    }
 
-        .scan-line {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, rgba(37, 99, 168, 0.8), #4ade80, rgba(37, 99, 168, 0.8), transparent);
-            box-shadow: 0 0 15px 3px rgba(74, 222, 128, 0.4);
-            z-index: 10;
-            animation: scan 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-            pointer-events: none;
-        }
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--slate-mid);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #fff; }
 
-        @keyframes scan {
-            0% {
-                top: -10%;
-                opacity: 0;
-            }
+    .nav-cta {
+      background: var(--blue-core);
+      color: #fff !important;
+      padding: 0.6rem 1.4rem;
+      border-radius: 10px;
+      font-weight: 700 !important;
+      font-size: 0.85rem !important;
+      letter-spacing: 0.02em;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s !important;
+      box-shadow: 0 0 20px rgba(26,108,245,0.4);
+    }
+    .nav-cta:hover {
+      background: var(--blue-bright) !important;
+      box-shadow: 0 0 30px rgba(77,159,255,0.6) !important;
+      transform: translateY(-1px) !important;
+    }
 
-            10% {
-                opacity: 1;
-            }
+    /* Mobile hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 6px;
+      background: none;
+      border: none;
+      z-index: 101;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--slate-hi);
+      border-radius: 2px;
+      transition: all 0.3s var(--ease-out);
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-            90% {
-                opacity: 1;
-            }
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 72px;
+      left: 0;
+      right: 0;
+      background: rgba(6,13,31,0.98);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 1.5rem clamp(1.25rem, 5vw, 3rem);
+      z-index: 99;
+      flex-direction: column;
+      gap: 1.25rem;
+      transform: translateY(-8px);
+      opacity: 0;
+      transition: all 0.3s var(--ease-out);
+    }
+    .mobile-menu.open {
+      display: flex;
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .mobile-menu a {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--slate-hi);
+      text-decoration: none;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu .mob-cta {
+      background: var(--blue-core);
+      color: #fff !important;
+      padding: 0.9rem 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+      margin-top: 0.5rem;
+      font-weight: 700 !important;
+      border-bottom: none !important;
+      box-shadow: 0 0 20px rgba(26,108,245,0.4);
+    }
 
-            100% {
-                top: 110%;
-                opacity: 0;
-            }
-        }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+    }
 
-        /* Scroll Reveal Utility */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+    /* ====================================================
+       HERO SECTION
+    ==================================================== */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 100px clamp(1.25rem, 5vw, 3rem) 80px;
+      text-align: center;
+      overflow: hidden;
+    }
 
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    /* Orb glow behind hero */
+    .hero-orb {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(700px, 130vw);
+      height: min(700px, 130vw);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(26,108,245,0.14) 0%, rgba(14,165,233,0.06) 40%, transparent 70%);
+      pointer-events: none;
+      animation: orbPulse 6s ease-in-out infinite;
+    }
+    @keyframes orbPulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+      50%       { transform: translate(-50%, -50%) scale(1.12); opacity: 1; }
+    }
 
-        /* Developer Badge Gradient */
-        .badge-gradient {
-            background: linear-gradient(135deg, rgba(26, 46, 74, 0.03), rgba(37, 99, 168, 0.08));
-        }
-    </style>
+    /* Rotating ring */
+    .hero-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(560px, 100vw);
+      height: min(560px, 100vw);
+      border-radius: 50%;
+      border: 1px solid rgba(26,108,245,0.15);
+      animation: ringRotate 20s linear infinite;
+      pointer-events: none;
+    }
+    .hero-ring::before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--blue-bright);
+      box-shadow: 0 0 14px 4px rgba(77,159,255,0.8);
+    }
+    @keyframes ringRotate {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to   { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .hero-ring-2 {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(760px, 140vw);
+      height: min(760px, 140vw);
+      border-radius: 50%;
+      border: 1px solid rgba(14,165,233,0.07);
+      animation: ringRotate 35s linear infinite reverse;
+      pointer-events: none;
+    }
+    .hero-ring-2::before {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 30%;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--cyan-spark);
+      box-shadow: 0 0 12px 4px rgba(34,211,238,0.7);
+    }
+
+    /* Pill badge */
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 1rem;
+      border-radius: 100px;
+      background: rgba(26,108,245,0.1);
+      border: 1px solid rgba(26,108,245,0.3);
+      margin-bottom: 2rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue-bright);
+      opacity: 0;
+      animation: fadeUp 0.8s var(--ease-out) 0.2s forwards;
+    }
+    .hero-badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--blue-bright);
+      box-shadow: 0 0 8px 3px rgba(77,159,255,0.7);
+      animation: dotPulse 2s ease-in-out infinite;
+    }
+    @keyframes dotPulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.4); }
+    }
+
+    /* Main headline */
+    .hero-headline {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 7vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      color: #fff;
+      max-width: 900px;
+      margin: 0 auto 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s var(--ease-out) 0.4s forwards;
+    }
+
+    .headline-gradient {
+      background: linear-gradient(135deg, #fff 0%, var(--blue-bright) 40%, var(--cyan-spark) 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Word-by-word reveal for tagline */
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      font-weight: 400;
+      line-height: 1.7;
+      color: var(--slate-mid);
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s var(--ease-out) 0.6s forwards;
+    }
+
+    /* CTA row */
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.9s var(--ease-out) 0.8s forwards;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--blue-core);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 0.9rem 2rem;
+      border-radius: 14px;
+      box-shadow: 0 0 0 0 rgba(26,108,245,0.5);
+      animation: ctaPulse 2.5s ease-in-out infinite;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .btn-primary:hover { background: #2575ff; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(26,108,245,0.5); }
+    .btn-primary:hover::before { opacity: 1; }
+    .btn-primary:active { transform: scale(0.97); }
+    @keyframes ctaPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(26,108,245,0.5); }
+      70%  { box-shadow: 0 0 0 12px rgba(26,108,245,0); }
+      100% { box-shadow: 0 0 0 0 rgba(26,108,245,0); }
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--slate-hi);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.9rem 1.75rem;
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-1px);
+    }
+    .btn-ghost:active { transform: scale(0.97); }
+
+    /* Trust chips */
+    .hero-trust {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-top: 3rem;
+      opacity: 0;
+      animation: fadeUp 0.9s var(--ease-out) 1s forwards;
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--slate-lo);
+    }
+    .trust-icon { color: var(--blue-bright); }
+
+    /* Resume preview card */
+    .hero-preview {
+      position: relative;
+      margin-top: 5rem;
+      max-width: 860px;
+      width: 100%;
+      opacity: 0;
+      animation: fadeUp 1s var(--ease-out) 1.1s forwards;
+    }
+
+    .preview-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(26,108,245,0.08), inset 0 1px 0 rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
+    }
+
+    .preview-topbar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.25rem;
+      background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .dot-red   { width:10px; height:10px; border-radius:50%; background:#ff5f57; }
+    .dot-yellow{ width:10px; height:10px; border-radius:50%; background:#febc2e; }
+    .dot-green { width:10px; height:10px; border-radius:50%; background:#28c840; }
+
+    .preview-url {
+      flex: 1;
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--slate-lo);
+      font-family: monospace;
+      background: rgba(255,255,255,0.04);
+      padding: 0.3rem 1rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .preview-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 340px;
+    }
+
+    .preview-form {
+      padding: 1.5rem;
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .form-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--slate-lo);
+      margin-bottom: 0.3rem;
+    }
+    .form-field {
+      height: 34px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      padding: 0 0.75rem;
+      gap: 0.5rem;
+    }
+    .form-field-bar {
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.15);
+    }
+    .form-field.active {
+      border-color: rgba(26,108,245,0.5);
+      box-shadow: 0 0 0 3px rgba(26,108,245,0.12);
+      background: rgba(26,108,245,0.06);
+    }
+    .cursor-blink {
+      width: 2px;
+      height: 14px;
+      background: var(--blue-bright);
+      animation: blink 1s step-end infinite;
+      flex-shrink: 0;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    .form-textarea {
+      height: 70px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 7px;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: auto;
+    }
+    .mock-btn {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.45rem 0.8rem;
+      border-radius: 7px;
+      color: #fff;
+    }
+    .mock-btn-blue { background: var(--blue-core); }
+    .mock-btn-ghost {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--slate-mid);
+    }
+
+    .preview-doc {
+      padding: 1.25rem;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .doc-name { width: 55%; height: 10px; background: #1e293b; border-radius: 4px; }
+    .doc-role { width: 38%; height: 7px; background: #2563eb; border-radius: 4px; margin-top: 2px; }
+    .doc-divider { width: 100%; height: 1px; background: #e2e8f0; margin: 3px 0; }
+    .doc-line { height: 6px; background: #cbd5e1; border-radius: 3px; }
+    .doc-line.short { width: 60%; }
+    .doc-line.medium { width: 80%; }
+    .doc-line.full { width: 100%; }
+    .doc-section-head { width: 28%; height: 7px; background: #64748b; border-radius: 3px; margin-top: 4px; }
+    .doc-skill-row { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px; }
+    .doc-skill { height: 16px; padding: 0 6px; background: #eff6ff; border: 1px solid #dbeafe; border-radius: 3px; }
+
+    /* Scan laser */
+    .scan-wrapper { position: absolute; inset: 0; overflow: hidden; pointer-events: none; border-radius: inherit; }
+    .scan-laser {
+      position: absolute;
+      left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent 0%, rgba(26,108,245,0.6) 20%, rgba(34,211,238,0.9) 50%, rgba(26,108,245,0.6) 80%, transparent 100%);
+      box-shadow: 0 0 12px 4px rgba(34,211,238,0.5);
+      top: 0;
+      animation: laserScan 3.5s ease-in-out infinite;
+    }
+    @keyframes laserScan {
+      0%   { top: 0%; opacity: 0; }
+      8%   { opacity: 1; }
+      92%  { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    /* ATS badge on preview */
+    .ats-badge {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(6,30,10,0.85);
+      border: 1px solid rgba(34,197,94,0.35);
+      color: #4ade80;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.4rem 0.75rem;
+      border-radius: 100px;
+      backdrop-filter: blur(8px);
+    }
+    .ats-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 8px 3px rgba(74,222,128,0.6);
+      animation: dotPulse 1.8s ease-in-out infinite;
+    }
+
+    /* ====================================================
+       STATS ROW
+    ==================================================== */
+    .stats-section {
+      position: relative;
+      z-index: 1;
+      padding: 3rem clamp(1.25rem, 5vw, 3rem);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .stats-row {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      border-radius: 16px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .stat-card:hover {
+      border-color: var(--border-glow);
+      box-shadow: 0 0 24px rgba(26,108,245,0.15);
+    }
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 0%, var(--blue-bright) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--slate-lo);
+      margin-top: 0.4rem;
+    }
+
+    /* ====================================================
+       FEATURES SECTION
+    ==================================================== */
+    .features-section {
+      position: relative;
+      z-index: 1;
+      padding: 7rem clamp(1.25rem, 5vw, 3rem);
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blue-bright);
+      margin-bottom: 1rem;
+    }
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1px;
+      background: var(--blue-bright);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    .section-sub {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--slate-mid);
+      max-width: 480px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 4rem;
+    }
+
+    .feature-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 2rem;
+      transition: all 0.4s var(--ease-out);
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(26,108,245,0.08) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .feature-card:hover { border-color: var(--border-glow); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(26,108,245,0.1); }
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+      font-size: 1.3rem;
+    }
+    .icon-blue   { background: rgba(26,108,245,0.15);  border: 1px solid rgba(26,108,245,0.3);  }
+    .icon-cyan   { background: rgba(34,211,238,0.12);  border: 1px solid rgba(34,211,238,0.25); }
+    .icon-indigo { background: rgba(99,102,241,0.15);  border: 1px solid rgba(99,102,241,0.3);  }
+    .icon-violet { background: rgba(139,92,246,0.12);  border: 1px solid rgba(139,92,246,0.25); }
+
+    .feature-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.6rem;
+    }
+    .feature-desc {
+      font-size: 0.88rem;
+      line-height: 1.65;
+      color: var(--slate-mid);
+    }
+
+    /* ====================================================
+       STORYTELLING "HOW IT WORKS" SECTION
+    ==================================================== */
+    .how-section {
+      position: relative;
+      z-index: 1;
+      padding: 7rem clamp(1.25rem, 5vw, 3rem);
+      overflow: hidden;
+    }
+
+    .how-bg-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(26,108,245,0.3) 20%, rgba(26,108,245,0.3) 80%, transparent);
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .how-grid {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4rem;
+    }
+
+    .how-step {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 1.75rem;
+      align-items: start;
+    }
+
+    .step-node {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--blue-bright);
+      background: rgba(26,108,245,0.1);
+      border: 1px solid rgba(26,108,245,0.3);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+    }
+    .step-node::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 1px dashed rgba(26,108,245,0.2);
+      animation: nodeRotate 10s linear infinite;
+    }
+    @keyframes nodeRotate {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .step-content { padding-top: 0.6rem; }
+    .step-title { font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+    .step-desc  { font-size: 0.9rem; line-height: 1.7; color: var(--slate-mid); }
+
+    /* ====================================================
+       DEVELOPER CARD
+    ==================================================== */
+    .dev-section {
+      position: relative;
+      z-index: 1;
+      padding: 7rem clamp(1.25rem, 5vw, 3rem);
+    }
+
+    .dev-card {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 24px;
+      padding: clamp(2rem, 5vw, 3.5rem);
+      display: flex;
+      gap: 2.5rem;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.4s, box-shadow 0.4s;
+    }
+    .dev-card:hover {
+      border-color: var(--border-glow);
+      box-shadow: 0 0 60px rgba(26,108,245,0.12);
+    }
+    .dev-card::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 240px; height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(26,108,245,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .dev-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue-core), var(--cyan-spark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 4px rgba(26,108,245,0.2), 0 0 30px rgba(26,108,245,0.3);
+      position: relative;
+    }
+    .dev-avatar::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 1px solid rgba(26,108,245,0.25);
+      animation: ringRotate 8s linear infinite;
+    }
+
+    .dev-info { flex: 1; min-width: 0; }
+    .dev-verified {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(26,108,245,0.1);
+      border: 1px solid rgba(26,108,245,0.25);
+      color: var(--blue-bright);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.8rem;
+      border-radius: 100px;
+      margin-bottom: 0.75rem;
+    }
+    .dev-name {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 3vw, 1.9rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.3rem;
+    }
+    .dev-handle {
+      font-family: monospace;
+      font-size: 0.72rem;
+      color: var(--blue-bright);
+      margin-bottom: 0.85rem;
+      letter-spacing: 0.04em;
+    }
+    .dev-quote {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--slate-mid);
+      font-style: italic;
+      margin-bottom: 1.25rem;
+    }
+    .dev-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .dev-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.3rem 0.75rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      color: var(--slate-mid);
+    }
+
+    @media (max-width: 600px) {
+      .dev-card { flex-direction: column; text-align: center; }
+      .dev-tags { justify-content: center; }
+    }
+
+    /* ====================================================
+       FOOTER CTA
+    ==================================================== */
+    footer {
+      position: relative;
+      z-index: 1;
+      padding: 6rem clamp(1.25rem, 5vw, 3rem) 3rem;
+      border-top: 1px solid var(--border-subtle);
+      text-align: center;
+      overflow: hidden;
+    }
+    footer::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--blue-core), transparent);
+    }
+
+    .footer-orb {
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 400px; height: 200px;
+      background: radial-gradient(ellipse, rgba(26,108,245,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .footer-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    .footer-sub {
+      font-size: 1rem;
+      color: var(--slate-mid);
+      max-width: 500px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.65;
+      position: relative;
+    }
+    .footer-copy {
+      margin-top: 4rem;
+      font-size: 0.78rem;
+      color: var(--slate-lo);
+    }
+
+    /* ====================================================
+       SCROLL REVEAL
+    ==================================================== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ====================================================
+       UTILITY
+    ==================================================== */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Fixed seal */
+    .fixed-seal {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(6,13,31,0.9);
+      border: 1px solid var(--border-subtle);
+      color: rgba(255,255,255,0.6);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+      animation: sealGlow 4s ease-in-out infinite alternate;
+    }
+    .seal-dot { width:5px; height:5px; border-radius:50%; background:var(--blue-bright); box-shadow:0 0 6px var(--blue-bright); }
+    @keyframes sealGlow {
+      0%   { border-color: rgba(26,108,245,0.15); box-shadow: 0 0 8px rgba(26,108,245,0.1); }
+      100% { border-color: rgba(26,108,245,0.45); box-shadow: 0 0 18px rgba(26,108,245,0.25); }
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 640px) {
+      .preview-body { grid-template-columns: 1fr; }
+      .preview-doc  { display: none; }
+      .preview-form { border-right: none; }
+      .stats-row    { grid-template-columns: 1fr; }
+      .hero-trust   { gap: 1.2rem; }
+      .features-grid{ grid-template-columns: 1fr; }
+      .how-bg-line  { display: none; }
+      .section-sub  { max-width: 100%; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-headline { letter-spacing: -0.02em; }
+      .btn-primary, .btn-ghost { width: 100%; justify-content: center; }
+      .hero-actions { flex-direction: column; width: 100%; max-width: 320px; margin-left: auto; margin-right: auto; }
+    }
+  </style>
 </head>
+<body>
 
-<body class="antialiased">
+  <!-- Background canvas -->
+  <canvas id="bg-canvas"></canvas>
+  <div class="bg-radials"></div>
 
-    <!-- NAVIGATION -->
-    <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <span class="text-navy font-bold text-xl tracking-tight">ATS<span
-                        class="text-actionBlue">Builder</span></span>
-            </div>
-            <div class="hidden md:flex items-center gap-8">
-                <a href="#features"
-                    class="text-sm font-semibold text-slate-600 hover:text-actionBlue transition-colors">Features</a>
-                <a href="#developer"
-                    class="text-sm font-semibold text-slate-600 hover:text-actionBlue transition-colors">The
-                    Developer</a>
-                <a href="resume-builder-ats.html"
-                    class="hover-lift btn-pulse bg-actionBlue text-white px-5 py-2.5 rounded-lg text-sm font-bold tracking-wide transition-colors">Launch
-                    Builder</a>
-            </div>
-            <!-- Mobile Menu Button (visual only for this demo) -->
-            <button class="md:hidden text-slate-600">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                </svg>
-            </button>
+  <!-- Fixed seal -->
+  <div class="fixed-seal">
+    <div class="seal-dot"></div>
+    Verified Developer
+  </div>
+
+  <!-- ===== NAV ===== -->
+  <nav>
+    <a href="#" class="nav-logo">ATS<span>Builder</span></a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#developer">Developer</a></li>
+      <li><a href="resume-builder-ats.html" class="nav-cta">Launch Builder →</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#features" onclick="closeMenu()">Features</a>
+    <a href="#how" onclick="closeMenu()">How It Works</a>
+    <a href="#developer" onclick="closeMenu()">Developer</a>
+    <a href="resume-builder-ats.html" class="mob-cta">Launch Builder →</a>
+  </div>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-orb"></div>
+    <div class="hero-ring"></div>
+    <div class="hero-ring-2"></div>
+
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      100% Client-Side · Zero Server Uploads
+    </div>
+
+    <h1 class="hero-headline">
+      The Resume That<br>
+      <span class="headline-gradient">Beats Every Bot.</span>
+    </h1>
+
+    <p class="hero-sub">
+      A precision-engineered, privacy-first ATS resume builder.
+      Your data stays in your browser. Your resume gets through the parser.
+    </p>
+
+    <div class="hero-actions">
+      <a href="resume-builder-ats.html" class="btn-primary">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/>
+        </svg>
+        Start Building Now
+      </a>
+      <a href="#features" class="btn-ghost">
+        See How It Works
+      </a>
+    </div>
+
+    <div class="hero-trust">
+      <span class="trust-item">
+        <svg class="trust-icon" width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.403 12.652a3 3 0 000-5.304 3 3 0 00-3.75-3.751 3 3 0 00-5.305 0 3 3 0 00-3.751 3.75 3 3 0 000 5.305 3 3 0 003.75 3.751 3 3 0 005.305 0 3 3 0 003.751-3.75zm-2.546-4.46a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+        ATS Optimized
+      </span>
+      <span class="trust-item">
+        <svg class="trust-icon" width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/></svg>
+        Privacy First
+      </span>
+      <span class="trust-item">
+        <svg class="trust-icon" width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3.5A1.5 1.5 0 014.5 2h6.879a1.5 1.5 0 011.06.44l4.122 4.12A1.5 1.5 0 0117 7.622V16.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 013 16.5v-13z"/></svg>
+        PDF & .docx Export
+      </span>
+      <span class="trust-item">
+        <svg class="trust-icon" width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a.75.75 0 01.75.75v1.506a8.002 8.002 0 016.994 6.994H19.25a.75.75 0 010 1.5h-1.506a8.002 8.002 0 01-6.994 6.994V19.25a.75.75 0 01-1.5 0v-1.506a8.002 8.002 0 01-6.994-6.994H.75a.75.75 0 010-1.5h1.506A8.002 8.002 0 019.25 4.256V2.75A.75.75 0 0110 2z"/></svg>
+        React 18 Powered
+      </span>
+    </div>
+
+    <!-- Preview Card -->
+    <div class="hero-preview">
+      <div class="preview-card">
+        <div class="preview-topbar">
+          <div class="dot-red"></div>
+          <div class="dot-yellow"></div>
+          <div class="dot-green"></div>
+          <div class="preview-url">resume-builder-ats.html — ATS Resume Builder</div>
         </div>
-    </nav>
-
-    <!-- HERO SECTION -->
-    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-white">
-        <!-- Abstract Background Shapes -->
-        <div class="absolute top-0 inset-x-0 h-full overflow-hidden -z-10 opacity-30 pointer-events-none">
-            <div
-                class="absolute -top-40 -right-40 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob">
+        <div class="preview-body">
+          <!-- Form side -->
+          <div class="preview-form">
+            <div>
+              <div class="form-label">Full Name</div>
+              <div class="form-field" style="border-color:rgba(255,255,255,0.08)">
+                <div class="form-field-bar" style="width:65%"></div>
+              </div>
             </div>
-            <div
-                class="absolute top-40 -left-40 w-72 h-72 bg-emerald-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000">
+            <div>
+              <div class="form-label">Professional Title</div>
+              <div class="form-field active">
+                <div class="cursor-blink"></div>
+                <div class="form-field-bar" style="width:48%"></div>
+              </div>
             </div>
-        </div>
-
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-center">
-
-                <!-- Hero Text -->
-                <div class="lg:col-span-6 text-center lg:text-left reveal">
-                    <div
-                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 mb-6">
-                        <span class="flex h-2 w-2 rounded-full bg-actionBlue"></span>
-                        <span class="text-xs font-semibold text-actionBlue tracking-wide uppercase">100% Privacy
-                            Focused</span>
-                    </div>
-
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-navy leading-[1.15] tracking-tight mb-6">
-                        The Resume Builder That <span
-                            class="text-transparent bg-clip-text bg-gradient-to-r from-actionBlue to-cyan-500">Actually
-                            Beats the Bots.</span>
-                    </h1>
-
-                    <p class="text-lg text-slate-600 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light">
-                        A high-performance, privacy-focused ATS optimization tool designed to help professionals land
-                        more interviews. Zero server uploads. Zero parsing errors.
-                    </p>
-
-                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                        <a href="resume-builder-ats.html"
-                            class="w-full sm:w-auto hover-lift btn-pulse bg-navy text-white px-8 py-4 rounded-xl text-base font-bold tracking-wide text-center">
-                            Launch Builder Now
-                        </a>
-                        <a href="#demo"
-                            class="w-full sm:w-auto text-slate-600 font-semibold hover:text-navy transition-colors px-8 py-4 text-center">
-                            View Live Demo →
-                        </a>
-                    </div>
-
-                    <p class="mt-6 text-xs text-slate-400 font-medium tracking-wide uppercase">Engineered by Sarmad
-                        Nadeem</p>
-                </div>
-
-                <!-- Hero Image & Scan Animation -->
-                <div class="lg:col-span-6 mt-16 lg:mt-0 reveal" style="transition-delay: 200ms;">
-                    <div
-                        class="scan-container bg-white border border-gray-100 aspect-[4/5] sm:aspect-[3/4] lg:aspect-auto lg:h-[600px] w-full max-w-lg mx-auto relative flex items-center justify-center p-4">
-                        <!-- Abstract Document Representation -->
-                        <div
-                            class="w-full h-full bg-slate-50 border border-slate-200 shadow-sm p-8 flex flex-col gap-4">
-                            <!-- Header Mock -->
-                            <div class="flex flex-col items-center gap-2 pb-6 border-b border-navy">
-                                <div class="w-48 h-6 bg-navy rounded"></div>
-                                <div class="w-32 h-3 bg-actionBlue rounded"></div>
-                                <div class="flex gap-4 mt-2">
-                                    <div class="w-16 h-2 bg-slate-300 rounded"></div>
-                                    <div class="w-20 h-2 bg-slate-300 rounded"></div>
-                                    <div class="w-16 h-2 bg-slate-300 rounded"></div>
-                                </div>
-                            </div>
-                            <!-- Body Mock -->
-                            <div class="w-32 h-4 bg-navy rounded mt-4"></div>
-                            <div class="w-full h-2 bg-slate-200 rounded"></div>
-                            <div class="w-5/6 h-2 bg-slate-200 rounded"></div>
-                            <div class="w-full h-2 bg-slate-200 rounded"></div>
-
-                            <div class="w-32 h-4 bg-navy rounded mt-6"></div>
-                            <div class="flex justify-between w-full mt-2">
-                                <div class="w-32 h-3 bg-slate-400 rounded"></div>
-                                <div class="w-20 h-3 bg-slate-300 rounded"></div>
-                            </div>
-                            <div class="w-48 h-2 bg-actionBlue rounded mt-1"></div>
-                            <div class="pl-4 flex flex-col gap-2 mt-3">
-                                <div class="w-full h-2 bg-slate-200 rounded"></div>
-                                <div class="w-4/5 h-2 bg-slate-200 rounded"></div>
-                                <div class="w-full h-2 bg-slate-200 rounded"></div>
-                            </div>
-                        </div>
-
-                        <!-- The Scanning Laser -->
-                        <div class="scan-line"></div>
-
-                        <!-- Overlay ATS Badges -->
-                        <div
-                            class="absolute bottom-6 right-6 bg-green-50/90 backdrop-blur border border-green-200 text-green-700 font-bold text-xs px-3 py-1.5 rounded-full shadow-sm flex items-center gap-2">
-                            <span class="block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> ATS Readable
-                        </div>
-                    </div>
-                </div>
+            <div>
+              <div class="form-label">Work Experience</div>
+              <div class="form-textarea">
+                <div class="form-field-bar" style="width:90%;height:6px;background:rgba(255,255,255,0.12)"></div>
+                <div class="form-field-bar" style="width:75%;height:6px;background:rgba(255,255,255,0.08)"></div>
+                <div class="form-field-bar" style="width:60%;height:6px;background:rgba(255,255,255,0.06)"></div>
+              </div>
             </div>
-        </div>
-    </section>
-
-    <!-- CORE VALUE PROPS -->
-    <section id="features" class="py-24 bg-slate-50">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16 reveal">
-                <h2 class="text-3xl font-bold text-navy tracking-tight sm:text-4xl">Engineered for Results.</h2>
-                <p class="mt-4 text-lg text-slate-600 font-light">Stop watching your resume disappear into black boxes.
-                    We built a processor that speaks the parser's language.</p>
+            <div class="form-actions">
+              <div class="mock-btn mock-btn-blue">Export PDF</div>
+              <div class="mock-btn mock-btn-ghost">Export .docx</div>
             </div>
-
-            <div class="relative max-w-lg mx-auto">
-                <!-- Feature Carousel Container -->
-                <div id="feature-carousel" class="relative">
-
-                    <!-- Prop 1 -->
-                    <div class="feature-card bg-white rounded-2xl p-8 border border-gray-100 shadow-lg reveal active"
-                        data-index="0">
-                        <div
-                            class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-6 border border-blue-100 text-actionBlue">
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-navy mb-3">Privacy First</h3>
-                        <p class="text-slate-600 font-light leading-relaxed mb-6">
-                            100% client-side processing. Your personal data never touches a server, leaves your browser,
-                            or gets stored in a database.
-                        </p>
-                    </div>
-
-                    <!-- Prop 2 -->
-                    <div class="feature-card hidden bg-white rounded-2xl p-8 border border-gray-100 shadow-lg"
-                        data-index="1">
-                        <div
-                            class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mb-6 border border-emerald-100 text-emerald-600">
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-3 2.148 2.148A12.061 12.061 0 0116.5 7.605" />
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-navy mb-3">Algorithm Ready</h3>
-                        <p class="text-slate-600 font-light leading-relaxed mb-6">
-                            Engineered specifically for Applicant Tracking Systems using a rigorous single-column,
-                            highly logical HTML-to-Doc layout.
-                        </p>
-                    </div>
-
-                    <!-- Prop 3 -->
-                    <div class="feature-card hidden bg-white rounded-2xl p-8 border border-gray-100 shadow-lg"
-                        data-index="2">
-                        <div
-                            class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center mb-6 border border-purple-100 text-purple-600">
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12l3 3m0 0l3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-navy mb-3">Hybrid Exports</h3>
-                        <p class="text-slate-600 font-light leading-relaxed mb-6">
-                            Instant, high-fidelity PDF and raw `.docx` generation right in the browser utilizing JSZip
-                            and html2canvas algorithms.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Carousel Controls -->
-                <div class="flex justify-between items-center mt-6">
-                    <div class="flex gap-2" id="carousel-dots">
-                        <span class="w-2 h-2 rounded-full bg-navy transition-all"></span>
-                        <span class="w-2 h-2 rounded-full bg-slate-300 transition-all"></span>
-                        <span class="w-2 h-2 rounded-full bg-slate-300 transition-all"></span>
-                    </div>
-                    <button id="next-feature-btn"
-                        class="text-actionBlue font-bold text-sm tracking-wide hover:text-navy transition-colors flex items-center gap-2">
-                        Next Feature <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                        </svg>
-                    </button>
-                </div>
+          </div>
+          <!-- Document side -->
+          <div class="preview-doc" style="position:relative;">
+            <div class="scan-wrapper">
+              <div class="scan-laser"></div>
             </div>
-        </div>
-    </section>
-
-    <!-- INTERACTIVE FEATURE GRID -->
-    <section id="demo" class="py-24 bg-white border-y border-gray-100">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="lg:grid lg:grid-cols-2 gap-16 items-center">
-
-                <div class="reveal">
-                    <h2 class="text-3xl font-bold text-navy mb-6">Precision Tooling & Live Sync</h2>
-                    <p class="text-lg text-slate-600 font-light mb-8">
-                        The interface binds state updates synchronously to the render tree. Every keystroke is
-                        visualized instantly, providing absolute confidence in the final document's appearance.
-                    </p>
-
-                    <ul class="space-y-4 mb-8">
-                        <li class="flex items-start">
-                            <div
-                                class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mt-1">
-                                <span class="text-actionBlue text-sm font-bold">1</span>
-                            </div>
-                            <div class="ml-4">
-                                <h4 class="text-navy font-bold">Real-time Form Synchronization</h4>
-                                <p class="text-slate-500 font-light text-sm mt-1">Split-screen React architecture
-                                    ensures zero latency between data entry and document visualization.</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start">
-                            <div
-                                class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mt-1">
-                                <span class="text-actionBlue text-sm font-bold">2</span>
-                            </div>
-                            <div class="ml-4">
-                                <h4 class="text-navy font-bold">Custom Python Sub-routines</h4>
-                                <p class="text-slate-500 font-light text-sm mt-1">Built alongside custom precision
-                                    scripts (`bump_font.py`) to systematically map and re-scale CSS and underlying XML
-                                    font nodes for pixel-perfect ATS sizing.</p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Feature Mockup -->
-                <div
-                    class="mt-12 lg:mt-0 reveal border-8 border-slate-100 rounded-2xl overflow-hidden shadow-xl bg-slate-200">
-                    <div class="flex h-[400px]">
-                        <!-- Form Side -->
-                        <div class="w-1/2 bg-white border-r border-slate-200 p-4 relative overflow-hidden">
-                            <div class="w-24 h-3 bg-slate-300 rounded mb-4"></div>
-                            <div class="w-full h-8 border border-slate-200 rounded mb-3 flex items-center px-3">
-                                <span class="w-2/3 h-2 bg-slate-300 rounded block"></span>
-                            </div>
-                            <div
-                                class="w-full h-24 border border-blue-400 bg-blue-50 rounded mb-3 p-3 relative shadow-[0_0_0_2px_rgba(37,99,168,0.2)]">
-                                <div class="w-2 h-4 bg-actionBlue animate-pulse absolute top-3 left-3"></div>
-                                <span class="w-4/5 h-2 bg-actionBlue rounded block ml-3 mt-1 opacity-50"></span>
-                            </div>
-                            <div
-                                class="absolute bottom-4 right-4 px-3 py-1.5 bg-navy text-white text-xs font-bold rounded shadow hover-lift">
-                                Generate PDF</div>
-                        </div>
-                        <!-- Preview Side -->
-                        <div class="w-1/2 bg-slate-300 p-6 flex justify-center items-start">
-                            <div class="w-full aspect-[1/1.4] bg-white shadow-lg p-4 flex flex-col items-center">
-                                <div class="w-1/2 h-3 bg-navy rounded mb-1"></div>
-                                <div class="w-1/3 h-2 bg-actionBlue rounded mb-4 text-center"></div>
-                                <div class="w-full h-[1px] bg-navy mb-4"></div>
-                                <div class="w-full h-2 bg-slate-200 rounded mb-2"></div>
-                                <div class="w-[80%] h-2 bg-slate-200 rounded mb-4"></div>
-                                <div class="w-full border-t border-slate-200 pt-2 flex justify-between mt-auto">
-                                    <div class="w-12 h-1.5 bg-slate-300 rounded"></div>
-                                    <div class="w-8 h-1.5 bg-slate-300 rounded"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+            <div class="doc-name"></div>
+            <div class="doc-role"></div>
+            <div class="doc-divider"></div>
+            <div class="doc-line full"></div>
+            <div class="doc-line medium"></div>
+            <div class="doc-line short"></div>
+            <div class="doc-section-head"></div>
+            <div class="doc-line full" style="margin-top:4px"></div>
+            <div class="doc-line medium"></div>
+            <div class="doc-section-head"></div>
+            <div class="doc-skill-row">
+              <div class="doc-skill" style="width:44px"></div>
+              <div class="doc-skill" style="width:56px"></div>
+              <div class="doc-skill" style="width:38px"></div>
+              <div class="doc-skill" style="width:50px"></div>
             </div>
+          </div>
         </div>
-    </section>
-
-    <!-- DEVELOPER VERIFIED CARD -->
-    <section id="developer" class="py-24 bg-light relative overflow-hidden">
-        <!-- Abstract Decoration -->
-        <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-20 pointer-events-none">
-            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#2563a8"
-                    d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,81.1,-46.3C90.4,-33.5,96,-18,95.5,-2.9C95,12.2,88.4,26.8,79.5,40.1C70.6,53.4,59.4,65.4,45.8,73.5C32.2,81.6,16.1,85.8,0.7,84.6C-14.7,83.4,-29.4,76.8,-42.6,68.2C-55.8,59.6,-67.5,49,-75.7,35.9C-83.9,22.8,-88.6,7.2,-87.3,-7.8C-86,-22.8,-78.7,-37.2,-68.8,-48.9C-58.9,-60.6,-46.4,-69.6,-32.8,-75.9C-19.2,-82.2,-4.5,-85.8,10.1,-84C24.7,-82.2,30.6,-83.6,44.7,-76.4Z"
-                    transform="translate(100 100)" />
-            </svg>
+        <!-- ATS Badge -->
+        <div class="ats-badge">
+          <div class="ats-dot"></div>
+          ATS Readable — 100%
         </div>
+      </div>
+    </div>
+  </section>
 
-        <div class="max-w-4xl mx-auto px-6 lg:px-8 relative z-10">
-            <div
-                class="badge-gradient border border-navy/10 rounded-3xl p-8 md:p-12 shadow-2xl backdrop-blur-sm reveal hover-lift">
-                <div class="flex flex-col md:flex-row items-center gap-8">
-                    <!-- Avatar/Initials -->
-                    <div
-                        class="flex-shrink-0 w-32 h-32 rounded-full bg-navy text-white flex items-center justify-center text-4xl font-bold tracking-tighter border-4 border-white shadow-lg">
-                        SN
-                    </div>
+  <!-- ===== STATS ===== -->
+  <div class="stats-section">
+    <div class="stats-row">
+      <div class="stat-card reveal">
+        <div class="stat-number" data-target="100">0%</div>
+        <div class="stat-label">Client-Side Processing</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-1">
+        <div class="stat-number" data-target="0">0</div>
+        <div class="stat-label">Server Uploads Required</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-2">
+        <div class="stat-number" data-target="2">0</div>
+        <div class="stat-label">Export Formats (PDF + .docx)</div>
+      </div>
+    </div>
+  </div>
 
-                    <div class="text-center md:text-left">
-                        <div
-                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 mb-3 shadow-sm">
-                            <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-xs font-bold text-navy tracking-wide uppercase">Verified Developer</span>
-                        </div>
+  <!-- ===== FEATURES ===== -->
+  <section id="features" class="features-section">
+    <div style="text-align:center;max-width:580px;margin:0 auto 1rem">
+      <div class="section-label reveal">Core Capabilities</div>
+      <h2 class="section-title reveal reveal-delay-1">Engineered to<br>pass every filter.</h2>
+      <p class="section-sub reveal reveal-delay-2" style="margin:0 auto">Built on the exact architecture that modern Applicant Tracking Systems expect to see.</p>
+    </div>
 
-                        <h2 class="text-3xl font-bold text-navy mb-2">Sarmad Nadeem</h2>
-                        <h3 class="text-actionBlue font-semibold mb-4 text-lg">Senior Full-Stack Developer & Supply
-                            Chain Planner</h3>
+    <div class="features-grid" style="max-width:1100px;margin:4rem auto 0">
+      <div class="feature-card reveal">
+        <div class="feature-icon icon-blue">🔒</div>
+        <div class="feature-title">Privacy First Architecture</div>
+        <div class="feature-desc">100% client-side. No database, no login, no server. Your personal career data never leaves your browser — ever.</div>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon icon-cyan">⚡</div>
+        <div class="feature-title">Live Synchronized Preview</div>
+        <div class="feature-desc">React 18 state binds directly to the resume render tree. Every keystroke updates the document in real-time, zero latency.</div>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon icon-indigo">📄</div>
+        <div class="feature-title">Hybrid Browser Exports</div>
+        <div class="feature-desc">High-fidelity PDF via html2canvas + jsPDF. Native .docx via pure XML packed with JSZip — no plugins needed.</div>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon icon-violet">🤖</div>
+        <div class="feature-title">ATS Single-Column Logic</div>
+        <div class="feature-desc">No tables, no columns, no icons — just clean, hierarchical HTML that parsing engines digest perfectly every time.</div>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon icon-blue">🐍</div>
+        <div class="feature-title">Precision Python Utilities</div>
+        <div class="feature-desc">bump_font.py and bump_font_small.py surgically re-scale CSS pt values and XML half-point nodes for pixel-perfect page fitting.</div>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon icon-cyan">✨</div>
+        <div class="feature-title">Glassmorphism UI</div>
+        <div class="feature-desc">Premium loading overlays, CSS-driven micro-interactions, pop-and-pulse buttons — a high-end experience worthy of your application.</div>
+      </div>
+    </div>
+  </section>
 
-                        <p class="text-slate-600 font-light leading-relaxed mb-6 italic">
-                            "Bridging the gap between technical planning and digital tools."
-                        </p>
-
-                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                            <span
-                                class="px-4 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-500 shadow-sm">React
-                                18</span>
-                            <span
-                                class="px-4 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-500 shadow-sm">Python</span>
-                            <span
-                                class="px-4 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-500 shadow-sm">UI/UX</span>
-                            <span
-                                class="px-4 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-500 shadow-sm">Supply
-                                Chain</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <!-- ===== HOW IT WORKS ===== -->
+  <section id="how" class="how-section">
+    <div class="how-bg-line"></div>
+    <div style="text-align:center;max-width:560px;margin:0 auto 5rem">
+      <div class="section-label reveal">The Process</div>
+      <h2 class="section-title reveal reveal-delay-1">From blank page<br>to hired.</h2>
+    </div>
+    <div class="how-grid">
+      <div class="how-step reveal">
+        <div class="step-node">01</div>
+        <div class="step-content">
+          <div class="step-title">Fill the Form</div>
+          <div class="step-desc">Enter your name, title, experience, education, and skills into the structured input panels. The UI guides you through every required ATS field.</div>
         </div>
-    </section>
-
-    <!-- FOOTER CTA -->
-    <footer class="bg-navy py-16 text-center border-t-8 border-actionBlue relative overflow-hidden">
-        <div
-            class="absolute top-0 inset-x-0 w-full h-1 bg-gradient-to-r from-transparent via-actionBlue to-transparent opacity-50 blur-sm">
+      </div>
+      <div class="how-step reveal">
+        <div class="step-node">02</div>
+        <div class="step-content">
+          <div class="step-title">Watch It Render Live</div>
+          <div class="step-desc">As you type, the right-side preview updates instantly. Locked in real-time React sync — what you see is exactly what the parser will read.</div>
         </div>
-        <div class="max-w-3xl mx-auto px-6 relative z-10 reveal">
-            <h2 class="text-3xl font-bold text-white mb-6">Ready to beat the parser?</h2>
-            <p class="text-blue-100 font-light mb-8 max-w-xl mx-auto">Skip the bloatware and complex logins. Build a
-                compliant, professional resume purely in your browser right now.</p>
-            <a href="resume-builder-ats.html"
-                class="inline-block hover-lift btn-pulse bg-white text-navy px-10 py-4 rounded-xl text-lg font-bold tracking-wide shadow-xl">
-                Start Building Now
-            </a>
-            <p class="mt-12 text-sm text-blue-200/50 font-light">© 2026 Sarmad Nadeem. All systems operational.</p>
+      </div>
+      <div class="how-step reveal">
+        <div class="step-node">03</div>
+        <div class="step-content">
+          <div class="step-title">Fine-tune with Python</div>
+          <div class="step-desc">Need to squeeze everything onto one page? Run bump_font_down.py to reduce all font sizes by 2.5pt across CSS and XML in one command.</div>
         </div>
-    </footer>
+      </div>
+      <div class="how-step reveal">
+        <div class="step-node">04</div>
+        <div class="step-content">
+          <div class="step-title">Export & Apply</div>
+          <div class="step-desc">Hit Export PDF for a pixel-perfect visual, or Export .docx for a natively editable Word document. Both generated instantly in your browser.</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <!-- Intersection Observer for Scroll Animations -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('active');
-                    }
-                });
-            }, {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            });
+  <!-- ===== DEVELOPER ===== -->
+  <section id="developer" class="dev-section">
+    <div class="section-label reveal" style="justify-content:center;display:flex;margin-bottom:1rem">The Builder</div>
+    <h2 class="section-title reveal" style="text-align:center;margin-bottom:3rem">Meet the Developer</h2>
+    <div class="dev-card reveal">
+      <div class="dev-avatar">SN</div>
+      <div class="dev-info">
+        <div class="dev-verified">
+          <svg width="10" height="10" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+          Verified Developer
+        </div>
+        <div class="dev-name">Sarmad Nadeem</div>
+        <div class="dev-handle">AUTH_ENGINEER_SARMAD_NADEEM_v2026.1</div>
+        <div class="dev-quote">"Bridging the gap between technical planning and digital tools — one precision-built system at a time."</div>
+        <div class="dev-tags">
+          <span class="dev-tag">React 18</span>
+          <span class="dev-tag">Python</span>
+          <span class="dev-tag">UI/UX</span>
+          <span class="dev-tag">Supply Chain</span>
+          <span class="dev-tag">Document Engineering</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            document.querySelectorAll('.reveal').forEach((el) => {
-                observer.observe(el);
-            });
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <div class="footer-orb"></div>
+    <h2 class="footer-title reveal">Ready to beat the bots?</h2>
+    <p class="footer-sub reveal reveal-delay-1">No sign-up. No server. No data leaks. Just open the builder, fill in your details, and export your ATS-perfect resume in minutes.</p>
+    <a href="resume-builder-ats.html" class="btn-primary reveal reveal-delay-2" style="display:inline-flex">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+      Start Building Now
+    </a>
+    <div class="footer-copy">© 2026 Sarmad Nadeem · All systems operational</div>
+  </footer>
 
-            // Feature Carousel Logic
-            const cards = document.querySelectorAll('.feature-card');
-            const dots = document.querySelectorAll('#carousel-dots span');
-            const nextBtn = document.getElementById('next-feature-btn');
-            let currentFeatureIdx = 0;
+  <!-- ===== SCRIPTS ===== -->
+  <script>
+    /* ---- Constellation canvas background ---- */
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [], mouse = { x: -9999, y: -9999 };
+    const N = window.innerWidth < 640 ? 50 : 100;
 
-            if (nextBtn && cards.length > 0) {
-                nextBtn.addEventListener('click', () => {
-                    // Hide current
-                    cards[currentFeatureIdx].classList.add('hidden');
-                    cards[currentFeatureIdx].classList.remove('active', 'reveal');
-                    dots[currentFeatureIdx].classList.replace('bg-navy', 'bg-slate-300');
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
 
-                    // Increment
-                    currentFeatureIdx = (currentFeatureIdx + 1) % cards.length;
+    function Particle() {
+      this.x  = Math.random() * W;
+      this.y  = Math.random() * H;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.r  = Math.random() * 1.5 + 0.3;
+      this.a  = Math.random() * 0.5 + 0.1;
+    }
 
-                    // Show next
-                    cards[currentFeatureIdx].classList.remove('hidden');
-                    // adding simple fade in animation class
-                    cards[currentFeatureIdx].classList.add('animate-[fadeIn_0.4s_ease-out]');
-                    dots[currentFeatureIdx].classList.replace('bg-slate-300', 'bg-navy');
-                });
-            }
-        });
-    </script>
+    function initParticles() {
+      particles = [];
+      for (let i = 0; i < N; i++) particles.push(new Particle());
+    }
+
+    function drawFrame() {
+      ctx.clearRect(0, 0, W, H);
+
+      // Draw connections
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        // Mouse interaction
+        const dx = mouse.x - p.x, dy = mouse.y - p.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 120) {
+          p.vx += dx * 0.00008;
+          p.vy += dy * 0.00008;
+        }
+
+        // Draw dots
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(77,159,255,${p.a})`;
+        ctx.fill();
+
+        // Lines to neighbors
+        for (let j = i + 1; j < particles.length; j++) {
+          const q = particles[j];
+          const ldx = p.x - q.x, ldy = p.y - q.y;
+          const d = Math.sqrt(ldx*ldx + ldy*ldy);
+          if (d < 140) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.strokeStyle = `rgba(26,108,245,${(1 - d/140) * 0.18})`;
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
+        }
+
+        // Update
+        p.x += p.vx; p.y += p.vy;
+        p.vx *= 0.999; p.vy *= 0.999;
+        if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+      }
+      requestAnimationFrame(drawFrame);
+    }
+
+    window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    window.addEventListener('resize', () => { resize(); initParticles(); });
+    resize(); initParticles(); drawFrame();
+
+    /* ---- Mobile menu ---- */
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    hamburger.addEventListener('click', () => {
+      const open = mobileMenu.classList.toggle('open');
+      hamburger.classList.toggle('open', open);
+    });
+
+    function closeMenu() {
+      mobileMenu.classList.remove('open');
+      hamburger.classList.remove('open');
+    }
+
+    /* ---- Scroll reveal ---- */
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    /* ---- Number counter for stats ---- */
+    const statObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const el = e.target.querySelector('.stat-number');
+        if (!el || el.dataset.done) return;
+        el.dataset.done = '1';
+        const target = parseInt(el.dataset.target);
+        const isPercent = el.textContent.includes('%');
+        let start = 0;
+        const dur = 1400;
+        const step = ts => {
+          if (!start) start = ts;
+          const p = Math.min((ts - start) / dur, 1);
+          const ease = 1 - Math.pow(1 - p, 3);
+          const cur = Math.round(ease * target);
+          el.textContent = cur + (isPercent ? '%' : '');
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.stat-card').forEach(el => statObserver.observe(el));
+
+    /* ---- Feature card mouse spotlight ---- */
+    document.querySelectorAll('.feature-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+        card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+      });
+    });
+
+    /* ---- Nav scroll tint ---- */
+    window.addEventListener('scroll', () => {
+      document.querySelector('nav').style.background =
+        window.scrollY > 40 ? 'rgba(3,7,18,0.95)' : 'rgba(3,7,18,0.75)';
+    });
+  </script>
 </body>
-
 </html>
