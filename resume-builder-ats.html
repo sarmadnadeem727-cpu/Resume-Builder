@@ -11,7 +11,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *,
     *::before,
@@ -22,40 +22,177 @@
     }
 
     :root {
-      --navy: #1a2e4a;
+      --navy: #0a101a;
+      --navy-light: #152238;
       --blue: #2563a8;
       --gold: #b45309;
-      --light: #f0f4f9;
-      --border: #d1dae6;
-      --text: #1e293b;
-      --muted: #64748b;
-      --white: #fff;
-      --accent: #e8eef6;
-      --green: #16a34a;
+      --light: #0a101a;
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #cbd5e1;
+      --muted: #94a3b8;
+      --white: #ffffff;
+      --accent: rgba(255, 255, 255, 0.03);
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --green: #4ade80;
     }
 
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: var(--light);
+      font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--navy);
       color: var(--text);
-      min-height: 100vh
+      min-height: 100vh;
+      overflow-x: hidden;
     }
+
+    /* Tactile Texture: Film Grain */
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.02;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* Static Mesh Gradient */
+    .mesh-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: 
+        radial-gradient(circle at 15% 15%, rgba(15, 32, 64, 0.4) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(32, 16, 64, 0.4) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, var(--navy) 0%, var(--navy) 100%);
+      pointer-events: none;
+    }
+
+    /* Glassmorphism Architecture */
+    .glass-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    }
+
 
     .app {
       display: flex;
       height: 100vh;
-      overflow: hidden
+      overflow: hidden;
     }
 
     /* SIDEBAR */
     .sidebar {
       width: 420px;
       min-width: 380px;
-      background: var(--white);
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-right: 1px solid var(--border);
       overflow-y: auto;
       display: flex;
-      flex-direction: column
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    @media (max-width: 860px) {
+      .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 85%;
+        max-width: 400px;
+        min-width: 320px;
+        transform: translateX(-100%);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 100;
+        box-shadow: none;
+      }
+      .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 95;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    .sidebar-overlay.open {
+      display: block;
+      opacity: 1;
+    }
+
+    .mobile-close-btn {
+      display: none;
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      z-index: 20;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease;
+    }
+
+    .mobile-close-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .mobile-toggle-btn {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--blue), #1d4ed8);
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+      z-index: 90;
+      cursor: pointer;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .mobile-toggle-btn:active {
+      transform: translateX(-50%) scale(0.95);
+    }
+
+    @media (max-width: 860px) {
+      .mobile-close-btn {
+        display: flex;
+      }
+      .mobile-toggle-btn {
+        display: flex;
+      }
     }
 
     .sidebar-header {
@@ -135,7 +272,7 @@
     }
 
     .sidebar-tabs button.active {
-      color: var(--blue);
+      color: var(--white);
       border-bottom-color: var(--blue)
     }
 
@@ -146,7 +283,13 @@
     .tab-body {
       flex: 1;
       overflow-y: auto;
-      padding: 18px 20px
+      padding: 18px 20px;
+    }
+
+    @media (max-width: 540px) {
+      .tab-body {
+        padding: 14px 12px;
+      }
     }
 
     .form-section {
@@ -170,6 +313,12 @@
       gap: 10px
     }
 
+    @media (max-width: 540px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .form-group {
       display: flex;
       flex-direction: column;
@@ -188,22 +337,23 @@
     .form-group input,
     .form-group textarea,
     .form-group select {
-      border: 1px solid var(--border);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 5px;
       padding: 7px 9px;
       font-size: 12.5px;
       font-family: inherit;
       color: var(--text);
-      background: var(--white);
-      transition: border .15s, box-shadow .15s;
+      background: rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
       resize: vertical
     }
 
     .form-group input:focus,
     .form-group textarea:focus {
       outline: none;
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(37, 99, 168, .1)
+      border-color: rgba(37, 99, 168, 0.5);
+      box-shadow: 0 0 15px 2px rgba(37, 99, 168, 0.6), inset 0 0 10px 0 rgba(37, 99, 168, 0.1);
+      background: rgba(255, 255, 255, 0.08);
     }
 
     .form-group textarea {
@@ -211,8 +361,8 @@
     }
 
     .item-card {
-      background: var(--accent);
-      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 7px;
       padding: 13px;
       margin-bottom: 11px;
@@ -229,7 +379,7 @@
     .item-card-title {
       font-size: 12px;
       font-weight: 600;
-      color: var(--navy)
+      color: var(--white)
     }
 
     .btn-delete {
@@ -263,12 +413,35 @@
       margin-top: 4px
     }
 
+    .sidebar-bottom {
+      flex-shrink: 0;
+      background: var(--glass-bg);
+      border-top: 1px solid var(--border);
+      z-index: 10;
+    }
+
     .form-nav-buttons {
       display: flex;
       justify-content: space-between;
-      margin-top: 20px;
-      padding-top: 15px;
-      border-top: 1px solid var(--border);
+      padding: 15px 20px;
+    }
+
+    @media (max-width: 860px) {
+      .sidebar-bottom {
+        display: flex;
+        flex-direction: column;
+      }
+      .form-nav-buttons {
+        gap: 10px;
+        padding: 10px 15px;
+        flex-direction: column;
+      }
+      .btn-nav {
+        width: 100%;
+      }
+      .tab-body {
+        padding-bottom: 20px;
+      }
     }
 
     .btn-nav {
@@ -288,12 +461,12 @@
     }
 
     .btn-nav.btn-back {
-      background: #e2e8f0;
-      color: var(--navy);
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--white);
     }
 
     .btn-nav.btn-back:hover {
-      background: #cbd5e1;
+      background: rgba(255, 255, 255, 0.2);
     }
 
     .btn-add:hover {
@@ -313,17 +486,20 @@
 
     .bullet-item input {
       flex: 1;
-      border: 1px solid var(--border);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 4px;
       padding: 5px 8px;
       font-size: 12px;
       font-family: inherit;
-      color: var(--text)
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
     }
 
     .bullet-item input:focus {
       outline: none;
-      border-color: var(--blue)
+      border-color: rgba(37, 99, 168, 0.5);
+      box-shadow: 0 0 15px 2px rgba(37, 99, 168, 0.6), inset 0 0 10px 0 rgba(37, 99, 168, 0.1);
     }
 
     .btn-rm-bullet {
@@ -441,11 +617,17 @@
     /* DOWNLOAD BAR */
     .download-bar {
       padding: 14px 20px;
-      border-top: 1px solid var(--border);
-      background: var(--white);
-      flex-shrink: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
-      gap: 8px
+      gap: 8px;
+    }
+
+    @media (max-width: 860px) {
+      .download-bar {
+        flex-direction: column;
+        padding: 10px 15px;
+        gap: 10px;
+      }
     }
 
     .btn-dl {
@@ -456,12 +638,16 @@
       font-size: 12.5px;
       font-weight: 700;
       cursor: pointer;
-      transition: opacity .15s;
+      transition: all .15s;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
       letter-spacing: .2px
+    }
+
+    .btn-dl:not(:disabled):active {
+      transform: scale(0.95);
     }
 
     .btn-dl:disabled {
@@ -566,20 +752,94 @@
       transition: all 0.4s ease;
     }
 
+    .verified-watermark {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 6px 12px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 50;
+      opacity: 0.7;
+      pointer-events: none;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .verified-watermark .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--blue);
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(37, 99, 168, 0.8);
+      animation: pulse-seal 2s infinite;
+    }
+
+    .verified-watermark .seal-text {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    @keyframes pulse-seal {
+      0% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 168, 0.7); }
+      50% { opacity: .7; transform: scale(0.95); box-shadow: 0 0 0 6px rgba(37, 99, 168, 0); }
+      100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 168, 0); }
+    }
+
+    @media (max-width: 860px) {
+      .verified-watermark {
+        bottom: 90px;
+        right: 14px;
+        opacity: 0.8;
+      }
+    }
+
     /* PREVIEW AREA */
     .preview-area {
       flex: 1;
       overflow-y: auto;
-      background: #cbd5e1;
+      overflow-x: hidden;
+      background: transparent;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 22px;
-      gap: 14px
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 860px) {
+      .preview-area {
+        padding: 14px 10px 100px 10px;
+      }
+    }
+
+    /* Wrapper for dynamic scaling of the A4 preview */
+    .resume-scaler {
+      width: 210mm;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    @media (max-width: 860px) {
+      .resume-scaler {
+        /* JS will set width and height inline to collapse the whitespace */
+        overflow: visible;
+      }
     }
 
     .preview-label {
-      color: #475569;
+      color: var(--muted);
       font-size: 12px;
       display: flex;
       align-items: center;
@@ -603,8 +863,6 @@
       color: var(--green)
     }
 
-    /* ===== ATS-FRIENDLY RESUME ===== */
-    /* Intentionally clean, single-font, no icons for ATS scanning */
     #resume-preview {
       width: 210mm;
       min-height: 297mm;
@@ -615,6 +873,8 @@
       color: #1a1a1a;
       padding: 8mm 12mm 8mm 12mm;
       line-height: 1.25;
+      transform-origin: top left;
+      flex-shrink: 0;
     }
 
     .r-name {
@@ -899,11 +1159,11 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useCallback } = React;
+    const { useState, useCallback, useEffect, useRef } = React;
 
     /* ===== INITIAL DATA ===== */
     const INIT = {
-      personal: { name: "", title: "", phone: "", email: "", linkedin: "", location: "" },
+      personal: { name: "", title: "", phone: "", email: "", linkedin: "", linkedinText: "", location: "" },
       summary: "",
       experience: [],
       education: [],
@@ -941,7 +1201,10 @@
             <div className="form-group"><label>Location</label><input value={data.location} onChange={e => f('location', e.target.value)} placeholder="City, Country" /></div>
           </div>
           <div className="form-group"><label>Email</label><input value={data.email} onChange={e => f('email', e.target.value)} placeholder="your@email.com" /></div>
-          <div className="form-group"><label>LinkedIn</label><input value={data.linkedin} onChange={e => f('linkedin', e.target.value)} placeholder="linkedin.com/in/yourname" /></div>
+          <div className="form-row">
+            <div className="form-group"><label>LinkedIn URL</label><input value={data.linkedin} onChange={e => f('linkedin', e.target.value)} placeholder="https://linkedin.com/in/yourname" /></div>
+            <div className="form-group"><label>LinkedIn Display Text</label><input value={data.linkedinText} onChange={e => f('linkedinText', e.target.value)} placeholder="e.g. John Doe | LinkedIn" /></div>
+          </div>
         </div>
       );
     }
@@ -1078,7 +1341,11 @@
           <div className="r-contact">
             {p.phone && <a href={`tel:${p.phone.replace(/[^0-9+]/g, '')}`}>{p.phone}</a>}
             {p.email && <a href={`mailto:${p.email}`}>{p.email}</a>}
-            {p.linkedin && <a href={p.linkedin.startsWith('http') ? p.linkedin : `https://${p.linkedin}`} target="_blank" rel="noopener noreferrer">{p.linkedin.replace(/^https?:\/\//, '')}</a>}
+            {p.linkedin && (
+              <a href={p.linkedin.startsWith('http') ? p.linkedin : `https://${p.linkedin}`} target="_blank" rel="noopener noreferrer">
+                {p.linkedinText || p.linkedin.replace(/^https?:\/\//, '')}
+              </a>
+            )}
             {p.location && <span>{p.location}</span>}
           </div>
 
@@ -1235,10 +1502,33 @@
     <w:r><w:rPr><w:b/><w:sz w:val="23"/><w:szCs w:val="23"/><w:color w:val="2563A8"/></w:rPr><w:t>${esc(p.title)}</w:t></w:r></w:p>`;
 
       // CONTACT LINE
-      const contactParts = [p.phone, p.email, p.linkedin, p.location].filter(Boolean);
-      if (contactParts.length) {
-        body += `<w:p><w:pPr><w:spacing w:before="40" w:after="120"/><w:jc w:val="center"/><w:pBdr><w:bottom w:val="single" w:sz="8" w:space="4" w:color="1A2E4A"/></w:pBdr></w:pPr>
-      <w:r><w:rPr><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="333333"/></w:rPr><w:t>${esc(contactParts.join('  |  '))}</w:t></w:r></w:p>`;
+      const contactItems = [];
+      if (p.phone) contactItems.push({ type: 'tel', text: p.phone, url: `tel:${p.phone.replace(/[^0-9+]/g, '')}` });
+      if (p.email) contactItems.push({ type: 'mailto', text: p.email, url: `mailto:${p.email}` });
+      if (p.linkedin) {
+        let text = p.linkedinText || p.linkedin.replace(/^https?:\/\//, '');
+        let url = p.linkedin.startsWith('http') ? p.linkedin : `https://${p.linkedin}`;
+        contactItems.push({ type: 'url', text, url });
+      }
+      if (p.location) contactItems.push({ type: 'text', text: p.location });
+
+      if (contactItems.length) {
+        body += `<w:p><w:pPr><w:spacing w:before="40" w:after="120"/><w:jc w:val="center"/><w:pBdr><w:bottom w:val="single" w:sz="8" w:space="4" w:color="1A2E4A"/></w:pBdr></w:pPr>`;
+        contactItems.forEach((item, idx) => {
+          if (idx > 0) {
+            body += `<w:r><w:rPr><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="333333"/></w:rPr><w:t xml:space="preserve">  |  </w:t></w:r>`;
+          }
+          if (item.url) {
+            let relId = `rId${relIdCounter++}`;
+            hyperlinks.push({ id: relId, url: item.url });
+            body += `<w:hyperlink r:id="${relId}">
+              <w:r><w:rPr><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="2563A8"/><w:u w:val="single"/></w:rPr><w:t>${esc(item.text)}</w:t></w:r>
+            </w:hyperlink>`;
+          } else {
+            body += `<w:r><w:rPr><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="333333"/></w:rPr><w:t>${esc(item.text)}</w:t></w:r>`;
+          }
+        });
+        body += `</w:p>`;
       }
 
       // SUMMARY
@@ -1424,12 +1714,38 @@ ${relsXmlList}</Relationships>`;
     /* ===== MAIN APP ===== */
     const TABS = ['Personal', 'Summary', 'Experience', 'Education', 'Skills', 'Certifications', 'Projects'];
 
+    function scalePreview() {
+      const scaler = document.querySelector('.resume-scaler');
+      const preview = document.getElementById('resume-preview');
+      if (!scaler || !preview) return;
+      const containerWidth = scaler.parentElement ? scaler.parentElement.clientWidth - 20 : window.innerWidth - 20;
+      const previewNaturalWidth = preview.offsetWidth; // 210mm in px
+      if (previewNaturalWidth <= 0) return;
+      const scale = Math.min(1, containerWidth / previewNaturalWidth);
+      const scaledHeight = preview.scrollHeight * scale;
+      preview.style.transform = `scale(${scale})`;
+      preview.style.transformOrigin = 'top left';
+      // Collapse the whitespace caused by transform not affecting layout
+      scaler.style.width = (previewNaturalWidth * scale) + 'px';
+      scaler.style.height = scaledHeight + 'px';
+    }
+
     function App() {
       const [data, setData] = useState(INIT);
       const [tab, setTab] = useState(0);
       const [hasReachedEnd, setHasReachedEnd] = useState(false);
       const [dlPdf, setDlPdf] = useState(false);
       const [dlWord, setDlWord] = useState(false);
+      const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+      useEffect(() => {
+        // Scale on mount and whenever data/tab changes
+        const handleResize = () => scalePreview();
+        window.addEventListener('resize', handleResize);
+        // Slight delay to let React finish DOM paint
+        const t = setTimeout(scalePreview, 50);
+        return () => { window.removeEventListener('resize', handleResize); clearTimeout(t); };
+      }, [data, tab]);
 
       const handleTabChange = (i) => {
         setTab(i);
@@ -1450,7 +1766,28 @@ ${relsXmlList}</Relationships>`;
         setDlPdf(true);
         try {
           const el = document.getElementById('resume-preview');
+          const originalTransform = el.style.transform;
+          const originalOrigin = el.style.transformOrigin;
+          
+          el.style.transform = 'none';
+
           const canvas = await html2canvas(el, { scale: 3, useCORS: true, logging: false, backgroundColor: '#ffffff', windowWidth: el.scrollWidth, windowHeight: el.scrollHeight });
+
+          const elRect = el.getBoundingClientRect();
+          const linkData = Array.from(el.querySelectorAll('a')).map(link => {
+            const rect = link.getBoundingClientRect();
+            return {
+              href: link.href,
+              left: rect.left - elRect.left,
+              top: rect.top - elRect.top,
+              width: rect.width,
+              height: rect.height
+            };
+          });
+
+          el.style.transform = originalTransform;
+          el.style.transformOrigin = originalOrigin;
+
           const img = canvas.toDataURL('image/png');
           const { jsPDF } = window.jspdf;
           const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -1458,18 +1795,32 @@ ${relsXmlList}</Relationships>`;
           const ph = pdf.internal.pageSize.getHeight();
           const ratio = canvas.height / canvas.width;
           let ih = pw * ratio;
+          
+          let renderW = pw;
+          let renderH = ih;
+          let offsetX = 0;
+          let offsetY = 0;
 
-          // Instead of looping to add multiple pages, scale it down to fit on one PDF page.
           if (ih > ph) {
-            // It exceeds one page. Scale to fit height.
             const scaleToFitHeightRatio = ph / ih;
-            const iw = pw * scaleToFitHeightRatio;
-            // Center it horizontally after scaling.
-            const xOffset = (pw - iw) / 2;
-            pdf.addImage(img, 'PNG', xOffset, 0, iw, ph, '', 'FAST');
-          } else {
-            pdf.addImage(img, 'PNG', 0, 0, pw, ih, '', 'FAST');
+            renderW = pw * scaleToFitHeightRatio;
+            renderH = ph;
+            offsetX = (pw - renderW) / 2;
           }
+
+          pdf.addImage(img, 'PNG', offsetX, offsetY, renderW, renderH, '', 'FAST');
+
+          const pxToMmX = renderW / elRect.width;
+          const pxToMmY = renderH / elRect.height;
+          
+          linkData.forEach(ld => {
+            if (!ld.href) return;
+            const pdfX = offsetX + (ld.left * pxToMmX);
+            const pdfY = offsetY + (ld.top * pxToMmY);
+            const pdfW = ld.width * pxToMmX;
+            const pdfH = ld.height * pxToMmY;
+            pdf.link(pdfX, pdfY, pdfW, pdfH, { url: ld.href });
+          });
 
           pdf.save(`${(data.personal.name || 'Resume').replace(/\s+/g, '_')}_Resume.pdf`);
         } catch (e) { alert('PDF export failed: ' + e.message); }
@@ -1491,11 +1842,15 @@ ${relsXmlList}</Relationships>`;
 
       return (
         <div className="app">
+          {/* SIDEBAR OVERLAY */}
+          <div className={`sidebar-overlay ${isSidebarOpen ? 'open' : ''}`} onClick={() => setIsSidebarOpen(false)}></div>
+
           {/* SIDEBAR */}
-          <div className="sidebar">
+          <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+            <button className="mobile-close-btn" aria-label="Close" onClick={() => setIsSidebarOpen(false)}>✕</button>
             <div className="sidebar-header">
               <h1>ATS Resume Builder</h1>
-              <p>Clean, parseable, recruiter-ready <span className="dev-badge">✓ Verified | Dev: Sarmad Nadeem</span></p>
+              <p>Clean, parseable, recruiter-ready <span className="dev-badge">✓ Verified | AUTH_ENGINEER_SARMAD_NADEEM_v2026.1</span></p>
               <div className="ats-badge">✓ ATS OPTIMIZED</div>
             </div>
             <div className="sidebar-tabs">
@@ -1511,31 +1866,43 @@ ${relsXmlList}</Relationships>`;
               {tab === 6 && <ProjectsForm data={data.projects} onChange={v => upd('projects', v)} />}
             </div>
 
-            <div className="form-nav-buttons">
-              <button className="btn-nav btn-back" onClick={handleBack} style={{ visibility: tab === 0 ? 'hidden' : 'visible' }}>← Back</button>
-              <button className="btn-nav" onClick={handleNext} disabled={tab === TABS.length - 1} style={{ display: tab === TABS.length - 1 ? 'none' : 'block' }}>Next Section →</button>
-            </div>
-
-            {hasReachedEnd && (
-              <div className="download-bar">
-                <button className={`btn-dl btn-dl-pdf ${dlPdf ? 'loading' : ''}`} onClick={downloadPDF} disabled={dlPdf || dlWord}>
-                  {dlPdf ? <><div className="btn-spinner"></div> Processing</> : '⬇ PDF'}
-                </button>
-                <button className={`btn-dl btn-dl-word ${dlWord ? 'loading' : ''}`} onClick={downloadWord} disabled={dlPdf || dlWord}>
-                  {dlWord ? <><div className="btn-spinner"></div> Processing</> : '⬇ Word (.docx)'}
-                </button>
+            <div className="sidebar-bottom">
+              <div className="form-nav-buttons">
+                <button className="btn-nav btn-back" onClick={handleBack} style={{ visibility: tab === 0 ? 'hidden' : 'visible' }}>← Back</button>
+                <button className="btn-nav" onClick={handleNext} disabled={tab === TABS.length - 1} style={{ display: tab === TABS.length - 1 ? 'none' : 'block' }}>Next Section →</button>
               </div>
-            )}
+
+              {hasReachedEnd && (
+                <div className="download-bar">
+                  <button className={`btn-dl btn-dl-pdf ${dlPdf ? 'loading' : ''}`} onClick={downloadPDF} disabled={dlPdf || dlWord}>
+                    {dlPdf ? <><div className="btn-spinner"></div> Processing</> : '⬇ PDF'}
+                  </button>
+                  <button className={`btn-dl btn-dl-word ${dlWord ? 'loading' : ''}`} onClick={downloadWord} disabled={dlPdf || dlWord}>
+                    {dlWord ? <><div className="btn-spinner"></div> Processing</> : '⬇ Word (.docx)'}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* PREVIEW */}
           <div className={`preview-area ${dlPdf || dlWord ? 'processing' : ''}`}>
+            <button className="mobile-toggle-btn" onClick={() => setIsSidebarOpen(true)}>
+              <span style={{ fontSize: '18px', lineHeight: 1 }}>✏️</span> Edit Resume
+            </button>
             <div className="preview-label">
               <strong>Live Preview</strong>
               <span>— ATS-friendly single-column layout</span>
               <span className="ats-score">✓ ATS Ready</span>
             </div>
-            <ResumePreview d={data} />
+            <div className="resume-scaler">
+              <ResumePreview d={data} />
+            </div>
+            {/* Verified Developer Watermark */}
+            <div className="verified-watermark">
+              <span className="pulse-dot"></span>
+              <span className="seal-text">Verified Developer</span>
+            </div>
           </div>
 
           {/* FULL SCREEN OVERLAY */}
