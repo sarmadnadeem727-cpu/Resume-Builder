@@ -1773,6 +1773,9 @@ ${relsXmlList}</Relationships>`;
 
           const canvas = await html2canvas(el, { scale: 3, useCORS: true, logging: false, backgroundColor: '#ffffff', windowWidth: el.scrollWidth, windowHeight: el.scrollHeight });
 
+          // Force reflow after resetting transform so getBoundingClientRect() is fully unscaled
+          el.getBoundingClientRect();
+
           const elRect = el.getBoundingClientRect();
           const linkData = Array.from(el.querySelectorAll('a')).map(link => {
             const rect = link.getBoundingClientRect();
@@ -1810,8 +1813,9 @@ ${relsXmlList}</Relationships>`;
 
           pdf.addImage(img, 'PNG', offsetX, offsetY, renderW, renderH, '', 'FAST');
 
-          const pxToMmX = renderW / elRect.width;
-          const pxToMmY = renderH / elRect.height;
+          // Ensure the hitboxes map to the exact mm coordinates drawn in the PDF
+          const pxToMmX = renderW / el.offsetWidth;
+          const pxToMmY = renderH / el.offsetHeight;
           
           linkData.forEach(ld => {
             if (!ld.href) return;
