@@ -768,10 +768,26 @@
       margin-bottom: 1.25rem;
       font-size: 1.3rem;
     }
-    .icon-blue   { background: rgba(26,108,245,0.15);  border: 1px solid rgba(26,108,245,0.3);  }
-    .icon-cyan   { background: rgba(34,211,238,0.12);  border: 1px solid rgba(34,211,238,0.25); }
-    .icon-indigo { background: rgba(99,102,241,0.15);  border: 1px solid rgba(99,102,241,0.3);  }
-    .icon-violet { background: rgba(139,92,246,0.12);  border: 1px solid rgba(139,92,246,0.25); }
+    .icon-blue   { background: rgba(26,108,245,0.15);  border: 1px solid rgba(26,108,245,0.3); color: #3b82f6; }
+    .icon-cyan   { background: rgba(34,211,238,0.12);  border: 1px solid rgba(34,211,238,0.25); color: #22d3ee; }
+    .icon-indigo { background: rgba(99,102,241,0.15);  border: 1px solid rgba(99,102,241,0.3); color: #818cf8; }
+    .icon-violet { background: rgba(139,92,246,0.12);  border: 1px solid rgba(139,92,246,0.25); color: #a78bfa; }
+
+    /* ICON ANIMATIONS */
+    .animate-icon { transition: all 0.3s ease; }
+    .feature-card:hover .lock-icon { animation: iconBounce 1s ease infinite; }
+    .feature-card:hover .zap-icon { animation: iconFloat 1.2s ease-in-out infinite; }
+    .feature-card:hover .doc-icon { animation: iconLift 0.6s ease forwards; }
+    .feature-card:hover .bot-icon { animation: iconWiggle 1s ease-in-out infinite; }
+    .feature-card:hover .code-icon { animation: iconPulse 1.5s ease infinite; }
+    .feature-card:hover .sparkle-icon { animation: iconSpin 4s linear infinite; }
+
+    @keyframes iconBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes iconFloat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-4px) scale(1.05); } }
+    @keyframes iconLift { 0% { transform: translateY(0); } 100% { transform: translateY(-4px); } }
+    @keyframes iconWiggle { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+    @keyframes iconPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+    @keyframes iconSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
     .feature-title {
       font-size: 1.05rem;
@@ -1284,32 +1300,44 @@
 
     <div class="features-grid" style="max-width:1100px;margin:4rem auto 0">
       <div class="feature-card reveal">
-        <div class="feature-icon icon-blue">🔒</div>
+        <div class="feature-icon icon-blue">
+          <svg class="animate-icon lock-icon" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
         <div class="feature-title">Privacy First Architecture</div>
         <div class="feature-desc">100% client-side. No database, no login, no server. Your personal career data never leaves your browser — ever.</div>
       </div>
       <div class="feature-card reveal reveal-delay-1">
-        <div class="feature-icon icon-cyan">⚡</div>
+        <div class="feature-icon icon-cyan">
+          <svg class="animate-icon zap-icon" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
         <div class="feature-title">Live Synchronized Preview</div>
         <div class="feature-desc">React 18 state binds directly to the resume render tree. Every keystroke updates the document in real-time, zero latency.</div>
       </div>
       <div class="feature-card reveal reveal-delay-2">
-        <div class="feature-icon icon-indigo">📄</div>
+        <div class="feature-icon icon-indigo">
+          <svg class="animate-icon doc-icon" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
         <div class="feature-title">Hybrid Browser Exports</div>
         <div class="feature-desc">High-fidelity PDF via html2canvas + jsPDF. Native .docx via pure XML packed with JSZip — no plugins needed.</div>
       </div>
       <div class="feature-card reveal">
-        <div class="feature-icon icon-violet">🤖</div>
+        <div class="feature-icon icon-violet">
+          <svg class="animate-icon bot-icon" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        </div>
         <div class="feature-title">ATS Single-Column Logic</div>
         <div class="feature-desc">No tables, no columns, no icons — just clean, hierarchical HTML that parsing engines digest perfectly every time.</div>
       </div>
       <div class="feature-card reveal reveal-delay-1">
-        <div class="feature-icon icon-blue">🐍</div>
+        <div class="feature-icon icon-blue">
+          <svg class="animate-icon code-icon" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
         <div class="feature-title">Precision Python Utilities</div>
         <div class="feature-desc">bump_font.py and bump_font_small.py surgically re-scale CSS pt values and XML half-point nodes for pixel-perfect page fitting.</div>
       </div>
       <div class="feature-card reveal reveal-delay-2">
-        <div class="feature-icon icon-cyan">✨</div>
+        <div class="feature-icon icon-cyan">
+          <svg class="animate-icon sparkle-icon" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+        </div>
         <div class="feature-title">Glassmorphism UI</div>
         <div class="feature-desc">Premium loading overlays, CSS-driven micro-interactions, pop-and-pulse buttons — a high-end experience worthy of your application.</div>
       </div>
