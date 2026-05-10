@@ -869,7 +869,7 @@
       background: #fff;
       box-shadow: 0 4px 20px rgba(0, 0, 0, .18);
       font-family: 'Inter', system-ui, -apple-system, Arial, sans-serif;
-      font-size: 9.25pt;
+      font-size: 12pt;
       color: #1a1a1a;
       padding: 8mm 12mm 8mm 12mm;
       line-height: 1.25;
@@ -878,7 +878,7 @@
     }
 
     .r-name {
-      font-size: 16.75pt;
+      font-size: 22pt;
       font-weight: 700;
       color: #1a2e4a;
       letter-spacing: -.5px;
@@ -888,7 +888,7 @@
     }
 
     .r-title {
-      font-size: 10.75pt;
+      font-size: 14pt;
       font-weight: 600;
       color: #2563a8;
       margin-top: 1px;
@@ -902,17 +902,21 @@
       column-gap: 10px;
       row-gap: 4px;
       margin-top: 5px;
-      font-size: 8.25pt;
+      font-size: 11pt;
       color: #333;
       border-bottom: 1px solid #1a2e4a;
       padding-bottom: 6px
     }
 
-    .r-contact span,
-    .r-contact a {
+    .r-contact span {
       white-space: nowrap;
       color: #333;
-      text-decoration: none;
+    }
+
+    .r-contact a {
+      white-space: nowrap;
+      color: #2563a8;
+      text-decoration: underline;
     }
 
     .r-contact a:hover {
@@ -926,7 +930,7 @@
     }
 
     .r-section-title {
-      font-size: 9.75pt;
+      font-size: 13pt;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -963,14 +967,14 @@
     }
 
     .r-job-title {
-      font-size: 9.75pt;
+      font-size: 13pt;
       font-weight: 700;
       color: #1a1a1a;
       word-wrap: break-word
     }
 
     .r-job-company {
-      font-size: 8.75pt;
+      font-size: 11.5pt;
       font-weight: 600;
       color: #2563a8;
       word-wrap: break-word
@@ -982,14 +986,14 @@
     }
 
     .r-job-dates {
-      font-size: 8.25pt;
+      font-size: 11pt;
       font-weight: 700;
       color: #1a1a1a;
       white-space: nowrap
     }
 
     .r-job-loc {
-      font-size: 7.75pt;
+      font-size: 10pt;
       font-weight: 600;
       color: #2563a8;
       margin-top: 1px;
@@ -1002,7 +1006,7 @@
     }
 
     .r-bullets li {
-      font-size: 8.75pt;
+      font-size: 11.5pt;
       line-height: 1.45;
       /* Increased for readability */
       margin-bottom: 1.5px;
@@ -1018,11 +1022,8 @@
     }
 
     .r-skill {
-      background: #1a2e4a;
-      color: #fff;
-      border-radius: 3px;
-      padding: 1.5px 5px;
-      font-size: 8.25pt;
+      color: #1a1a1a;
+      font-size: 11pt;
       font-weight: 600
     }
 
@@ -1044,14 +1045,14 @@
     }
 
     .r-edu-degree {
-      font-size: 9.75pt;
+      font-size: 13pt;
       font-weight: 700;
       color: #1a1a1a;
       word-wrap: break-word
     }
 
     .r-edu-school {
-      font-size: 8.75pt;
+      font-size: 11.5pt;
       font-weight: 600;
       color: #2563a8;
       word-wrap: break-word
@@ -1063,25 +1064,21 @@
     }
 
     .r-edu-dates {
-      font-size: 8.25pt;
+      font-size: 11pt;
       font-weight: 700;
       color: #1a1a1a;
       white-space: nowrap
     }
 
     .r-edu-gpa {
-      font-size: 9.25pt;
+      font-size: 11pt;
       font-weight: 700;
       color: #1a2e4a;
-      background: #e8eef6;
-      border-radius: 2px;
-      padding: 1px 4px;
-      display: inline-block;
       margin-top: 1px
     }
 
     .r-edu-note {
-      font-size: 7.75pt;
+      font-size: 10pt;
       color: #444;
       margin-top: 1px;
       font-style: italic
@@ -1095,7 +1092,7 @@
     }
 
     .r-cert-item {
-      font-size: 8.75pt;
+      font-size: 11.5pt;
       color: #222
     }
 
@@ -1114,13 +1111,13 @@
     }
 
     .r-project-name {
-      font-size: 9.25pt;
+      font-size: 12pt;
       font-weight: 700;
       color: #1a2e4a
     }
 
     .r-project-desc {
-      font-size: 8.75pt;
+      font-size: 11pt;
       color: #333;
       margin-top: 1px;
       line-height: 1.3
@@ -1350,7 +1347,7 @@
           </div>
 
           {/* SUMMARY */}
-          {summary && <div className="r-section"><div className="r-section-title">Professional Summary</div><div className="r-summary">{summary}</div></div>}
+
 
           {/* EXPERIENCE */}
           {experience.length > 0 && <div className="r-section"><div className="r-section-title">Work Experience</div>
@@ -1386,7 +1383,7 @@
 
           {/* SKILLS */}
           {skills.length > 0 && <div className="r-section"><div className="r-section-title">Skills</div>
-            <div className="r-skills-row">{skills.map((s, i) => <span className="r-skill" key={i}>{s}</span>)}</div>
+            <div className="r-skills-row">{skills.map((s, i) => <span className="r-skill" key={i}>{s}{i < skills.length - 1 ? ' • ' : ''}</span>)}</div>
           </div>}
 
           {/* CERTIFICATIONS */}
@@ -1531,12 +1528,7 @@
         body += `</w:p>`;
       }
 
-      // SUMMARY
-      if (summary) {
-        body += sectionTitle('Professional Summary');
-        body += `<w:p><w:pPr><w:spacing w:before="0" w:after="80"/><w:jc w:val="both"/></w:pPr>
-      <w:r><w:rPr><w:sz w:val="19"/><w:szCs w:val="19"/><w:color w:val="222222"/></w:rPr><w:t xml:space="preserve">${esc(summary)}</w:t></w:r></w:p>`;
-      }
+
 
       // EXPERIENCE
       if (experience.length) {
@@ -1712,7 +1704,7 @@ ${relsXmlList}</Relationships>`;
     }
 
     /* ===== MAIN APP ===== */
-    const TABS = ['Personal', 'Summary', 'Experience', 'Education', 'Skills', 'Certifications', 'Projects'];
+    const TABS = ['Personal', 'Experience', 'Education', 'Skills', 'Certifications', 'Projects'];
 
     function scalePreview() {
       const scaler = document.querySelector('.resume-scaler');
@@ -1862,12 +1854,11 @@ ${relsXmlList}</Relationships>`;
             </div>
             <div className="tab-body">
               {tab === 0 && <PersonalForm data={data.personal} onChange={v => upd('personal', v)} />}
-              {tab === 1 && <SummaryForm data={data.summary} onChange={v => upd('summary', v)} />}
-              {tab === 2 && <ExperienceForm data={data.experience} onChange={v => upd('experience', v)} />}
-              {tab === 3 && <EducationForm data={data.education} onChange={v => upd('education', v)} />}
-              {tab === 4 && <SkillsForm data={data.skills} onChange={v => upd('skills', v)} />}
-              {tab === 5 && <CertsForm data={data.certifications} onChange={v => upd('certifications', v)} />}
-              {tab === 6 && <ProjectsForm data={data.projects} onChange={v => upd('projects', v)} />}
+              {tab === 1 && <ExperienceForm data={data.experience} onChange={v => upd('experience', v)} />}
+              {tab === 2 && <EducationForm data={data.education} onChange={v => upd('education', v)} />}
+              {tab === 3 && <SkillsForm data={data.skills} onChange={v => upd('skills', v)} />}
+              {tab === 4 && <CertsForm data={data.certifications} onChange={v => upd('certifications', v)} />}
+              {tab === 5 && <ProjectsForm data={data.projects} onChange={v => upd('projects', v)} />}
             </div>
 
             <div className="sidebar-bottom">
