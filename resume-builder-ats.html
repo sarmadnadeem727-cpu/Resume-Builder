@@ -11,7 +11,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Montserrat:wght@600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     *,
     *::before,
@@ -868,44 +868,48 @@
       min-height: 297mm;
       background: #fff;
       box-shadow: 0 4px 20px rgba(0, 0, 0, .18);
-      font-family: 'Inter', system-ui, -apple-system, Arial, sans-serif;
-      font-size: 12pt;
+      font-family: 'Open Sans', system-ui, -apple-system, Arial, sans-serif;
+      font-size: 11pt;
       color: #1a1a1a;
-      padding: 8mm 12mm 8mm 12mm;
-      line-height: 1.25;
+      padding: 10mm 15mm 10mm 15mm;
+      line-height: 1.5;
       transform-origin: top left;
       flex-shrink: 0;
     }
 
     .r-name {
-      font-size: 22pt;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 24pt;
       font-weight: 700;
       color: #1a2e4a;
-      letter-spacing: -.5px;
-      line-height: 1.1;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
       word-break: break-word;
       text-align: center;
     }
 
     .r-title {
+      font-family: 'Montserrat', sans-serif;
       font-size: 14pt;
       font-weight: 600;
       color: #2563a8;
-      margin-top: 1px;
+      margin-top: 2px;
       text-align: center;
+      line-height: 1.2;
     }
 
     .r-contact {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      column-gap: 10px;
-      row-gap: 4px;
-      margin-top: 5px;
-      font-size: 11pt;
-      color: #333;
-      border-bottom: 1px solid #1a2e4a;
-      padding-bottom: 6px
+      column-gap: 12px;
+      row-gap: 6px;
+      margin-top: 8px;
+      font-size: 10pt;
+      color: #444;
+      border-bottom: 1.5px solid #1a2e4a;
+      padding-bottom: 8px;
+      line-height: 1.4;
     }
 
     .r-contact span {
@@ -926,32 +930,33 @@
 
     /* SECTION */
     .r-section {
-      margin-top: 6px
+      margin-top: 12px
     }
 
     .r-section-title {
+      font-family: 'Montserrat', sans-serif;
       font-size: 13pt;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.05em;
       color: #1a2e4a;
-      border-bottom: 1px solid #1a2e4a;
-      padding-bottom: 1px;
-      margin-bottom: 4px
+      border-bottom: 1.5px solid #1a2e4a;
+      padding-bottom: 2px;
+      margin-bottom: 8px
     }
 
     /* SUMMARY */
     .r-summary {
-      font-size: 8pt;
-      line-height: 1.5;
-      /* Increased for readability */
-      color: #222;
-      text-align: justify
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #333;
+      text-align: justify;
+      margin-bottom: 10px;
     }
 
     /* JOB */
     .r-job {
-      margin-bottom: 5px
+      margin-bottom: 12px
     }
 
     .r-job-header {
@@ -959,6 +964,7 @@
       justify-content: space-between;
       align-items: flex-start;
       gap: 15px;
+      margin-bottom: 2px;
     }
 
     .r-job-left {
@@ -967,17 +973,20 @@
     }
 
     .r-job-title {
-      font-size: 13pt;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12pt;
       font-weight: 700;
       color: #1a1a1a;
-      word-wrap: break-word
+      word-wrap: break-word;
+      line-height: 1.3;
     }
 
     .r-job-company {
-      font-size: 11.5pt;
+      font-size: 11pt;
       font-weight: 600;
       color: #2563a8;
-      word-wrap: break-word
+      word-wrap: break-word;
+      line-height: 1.3;
     }
 
     .r-job-right {
@@ -986,10 +995,11 @@
     }
 
     .r-job-dates {
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 700;
       color: #1a1a1a;
-      white-space: nowrap
+      white-space: nowrap;
+      line-height: 1.3;
     }
 
     .r-job-loc {
@@ -997,20 +1007,20 @@
       font-weight: 600;
       color: #2563a8;
       margin-top: 1px;
-      white-space: nowrap
+      white-space: nowrap;
+      line-height: 1.3;
     }
 
     .r-bullets {
-      margin-top: 2px;
-      padding-left: 12px
+      margin-top: 4px;
+      padding-left: 15px
     }
 
     .r-bullets li {
-      font-size: 11.5pt;
-      line-height: 1.45;
-      /* Increased for readability */
-      margin-bottom: 1.5px;
-      color: #222
+      font-size: 10.5pt;
+      line-height: 1.5;
+      margin-bottom: 4px;
+      color: #333
     }
 
     /* SKILLS */
@@ -1347,8 +1357,7 @@
           </div>
 
           {/* SUMMARY */}
-
-
+          {summary && <div className="r-summary">{summary}</div>}
           {/* EXPERIENCE */}
           {experience.length > 0 && <div className="r-section"><div className="r-section-title">Work Experience</div>
             {experience.map(exp => (
@@ -1704,7 +1713,7 @@ ${relsXmlList}</Relationships>`;
     }
 
     /* ===== MAIN APP ===== */
-    const TABS = ['Personal', 'Experience', 'Education', 'Skills', 'Certifications', 'Projects'];
+    const TABS = ['Personal', 'Summary', 'Experience', 'Education', 'Skills', 'Certifications', 'Projects'];
 
     function scalePreview() {
       const scaler = document.querySelector('.resume-scaler');
@@ -1854,11 +1863,12 @@ ${relsXmlList}</Relationships>`;
             </div>
             <div className="tab-body">
               {tab === 0 && <PersonalForm data={data.personal} onChange={v => upd('personal', v)} />}
-              {tab === 1 && <ExperienceForm data={data.experience} onChange={v => upd('experience', v)} />}
-              {tab === 2 && <EducationForm data={data.education} onChange={v => upd('education', v)} />}
-              {tab === 3 && <SkillsForm data={data.skills} onChange={v => upd('skills', v)} />}
-              {tab === 4 && <CertsForm data={data.certifications} onChange={v => upd('certifications', v)} />}
-              {tab === 5 && <ProjectsForm data={data.projects} onChange={v => upd('projects', v)} />}
+              {tab === 1 && <SummaryForm data={data.summary} onChange={v => upd('summary', v)} />}
+              {tab === 2 && <ExperienceForm data={data.experience} onChange={v => upd('experience', v)} />}
+              {tab === 3 && <EducationForm data={data.education} onChange={v => upd('education', v)} />}
+              {tab === 4 && <SkillsForm data={data.skills} onChange={v => upd('skills', v)} />}
+              {tab === 5 && <CertsForm data={data.certifications} onChange={v => upd('certifications', v)} />}
+              {tab === 6 && <ProjectsForm data={data.projects} onChange={v => upd('projects', v)} />}
             </div>
 
             <div className="sidebar-bottom">
